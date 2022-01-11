@@ -1,3 +1,10 @@
+# project customize
+data/
+dist/
+tsc/
+private/
+
+
 # Logs
 logs
 *.log

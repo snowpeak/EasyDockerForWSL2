@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="utf-8" />
+	<title>EasyDocker For WSL2</title>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap-icons.css">
+	<link rel="stylesheet" href="css/main.css">
+
+	<script>
+		var s_init = false;
+		setTimeout(()=>{
+			let p_msg = document.getElementById("startupMsg");
+			if(p_msg && !s_init){
+				p_msg.classList.remove("d-none");
+			}
+		}, 2000);
+	</script>
+</head>
+
+<body>
+	<div id="naviApp"></div>
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item" role="presentation">
+			<button class="nav-link active" id="container-tab" data-bs-toggle="tab" data-bs-target="#containerTab"
+				type="button" role="tab" aria-controls="home" aria-selected="true">Container</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#imageTab" type="button"
+				role="tab" aria-controls="profile" aria-selected="false">Image</button>
+		</li>
+		<li class="nav-item" role="presentation">
+			<button class="nav-link" id="setting-tab" data-bs-toggle="tab" data-bs-target="#settingTab" type="button"
+				role="tab" aria-controls="contact" aria-selected="false">Setting</button>
+		</li>
+	</ul>
+	<div class="alert alert-info d-none m-3" id="startupMsg">Starting up. Please wait a momoment!</div>
+	<div class="tab-content mx-4" id="tabDiv">
+		<div class="tab-pane fade show active d-none" id="containerTab" role="tabpanel" >
+			<div id="containerApp">
+				<div v-if="tabErr" class="alert alert-warning">
+					<div class="fw-bold" v-html="$t('common.error.connect')"></div>
+					<div class="ms-3">{{tabErr}}</div>
+				</div>
+				<div v-if="actionErr" class="alert alert-danger">{{actionErr}}</div>
+				<div class="alert alert-info d-none" id="noContainerMsg">{{$t("containertab.nocontainer")}}</div>
+				<table class="table">
+					<tr class="text-center">
+						<th>{{ $t("containertab.name") }}</th>
+						<th>{{ $t("containertab.image") }}</th>
+						<th>{{ $t("containertab.status") }}</th>
+						<th>{{ $t("containertab.operation") }}</th>
+						<th>{{ $t("containertab.ports") }}</th>
+						<th>{{ $t("containertab.memo") }}</th>
+						<th>{{ $t("containertab.delete") }}</th>
+					</tr>
+					<tr v-for="container in containers">
+						<td class="text-nowrap">{{name(container)}}</td>
+						<td>{{container.Image}}</td>
+						<td>
+							<!--{{container.State}}-->
+							<button v-if="container.State != 'running'" class="btn btn-primary"
+								v-on:click="startContainer(container.Id)">
+								<span class="bi-play"></span>
+								<span class="spinner-border spinner-border-sm text-light d-none"
+									v-bind:id="'startSpinner_' + container.Id"></span>
+							</button>
+
+							<button v-if="container.State == 'running'" class="btn btn-warning"
+								v-on:click="stopContainer(container.Id)">
+								<span class="bi-stop-fill"></span>
+								<div class="spinner-border spinner-border-sm text-light d-none"
+									v-bind:id="'stopSpinner_' + container.Id"></div>
+							</button>
+						</td>
+						<td class="text-nowrap">
+							<button class="btn text-light bg-dark bi-terminal"
+								v-on:click="openConsole(container.Id)"></button>
+							<!--
+							<button class="btn btn-primary bi-files"></button>
+							-->
+							<button class="btn btn-success bi-save" v-on:click="exportImageWin(container.Id)"></button>
+						</td>
+						<td><div class="text-nowrap" v-html="ports(container)"></div></td>
+						<td><pre class="memo mb-1 p-1" v-if="container.dbInfo  && container.dbInfo.memo">{{container.dbInfo.memo}}</pre>
+							<div v-on:click="editMemoWin(container.Id)" class="editMemo mt-1">edit</div>
+						</td>
+						<td>
+							<button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delModal"
+								v-bind:data-bs-name="name(container)" v-bind:data-bs-image="container.Image"
+								v-on:click="prepareDeleteContainer(container.Id)">
+								<span class="bi-trash"></span>
+							</button>
+						</td>
+					</tr>
+				</table>
+
+				<!-- Modal -->
+				<div class="modal fade" id="delModal" tabindex="-1">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{ $t("deleteconform.confirmation") }}</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<dt>{{ $t("containertab.name") }}</dt>
+								<dd id="delContainerName" class="ms-3"></span></dd>
+
+								<dt>{{ $t("containertab.image") }}</dt>
+								<dd id="delContainerImage" class="ms-3"></dd>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{
+									$t("common.cancel") }}</button>
+								<button type="button" class="btn btn-danger" v-on:click="doDeleteContainer()">
+									<span class="bi-trash"></span>
+									<span class="spinner-border spinner-border-sm text-light d-none"
+										id="deleteSpinner"></span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Image Tab -->
+		<div class="tab-pane fade mx-4" id="imageTab" role="tabpanel" aria-labelledby="profile-tab">
+			<div id="imageApp">
+				<div v-if="tabErr" class="alert alert-warning">
+					<div class="fw-bold" v-html="$t('common.error.connect')"></div>
+					<div class="ms-3">{{tabErr}}</div>
+				</div>
+				<div v-if="!actionErr && (images==null || images.length==0)" class="alert alert-info">{{$t("imagetab.noimage")}}</div>
+				<div v-if="actionErr" class="alert alert-danger">{{actionErr}}</div>
+				<table class="table">
+					<tr class="text-center">
+						<th>{{ $t("imagetab.tag") }}</th>
+						<th>{{ $t("imagetab.operation") }}</th>
+						<th>{{ $t("imagetab.size") }}</th>
+					</tr>
+					<tr v-for="image in images">
+						<td>{{image.RepoTags[0]}}</td>
+						<td>
+							<button class="btn btn-primary" v-on:click="createContainerWin(image.Id)">
+								<span class="bi-power"></span>
+							</button>
+							<button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delImageModal"
+								v-bind:data-bs-tag="image.RepoTags[0]" v-on:click="prepareDeleteImage(image.Id)">
+								<span class="bi-trash"></span>
+							</button>
+						</td>
+						<td>{{Math.floor(image.Size/1024/1024) + 'MB'}}</td>
+					</tr>
+				</table>
+				<!-- add -->
+				<button v-if="!tabErr" type="button" class="btn btn-success bi-plus-circle" v-on:click="loadImageWin"></button>
+
+				<!-- Modal -->
+				<div class="modal fade" id="delImageModal" tabindex="-1">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{ $t("imagetab.confirm") }}</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<dt>{{ $t("imagetab.tag") }}</dt>
+								<dd id="delImageTag" class="ms-3"></dd>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{
+									$t("common.cancel") }}</button>
+								<button type="button" class="btn btn-danger" v-on:click="doDeleteImage()">
+									<span class="bi-trash"></span>
+									<span class="spinner-border spinner-border-sm text-light d-none"
+										id="deleteImageSpinner"></span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Setting Tab -->
+		<div class="tab-pane fade mx-4 mt-3" id="settingTab" role="tabpanel" aria-labelledby="contact-tab">
+			<div id="settingApp">
+				<!-- Status -->
+				<div class="alert alert-info text-dark">{{ $t("setting.title.status")}}</div>
+				<div class="d-flex flex-row align-items-center mb-3">
+					<label class="col-sm-4 col-form-label">{{ $t("setting.wsl2") }}</label>
+					<div class="col-sm-8">
+						<span v-if="status.wsl2" class="text-success bi-check-circle-fill me-2">OK</span>
+						<span v-if="!status.wsl2" class="text-danger bi-x-circle-fill"></span>
+					</div>
+				</div>
+				<div class="d-flex flex-row align-items-center mb-3">
+					<label class="col-sm-4 col-form-label">{{ $t("setting.easydocker") }}</label>
+					<div class="col-sm-8">
+						<div  v-if="status.easydocker">
+							<span class="text-success bi-check-circle-fill me-2">OK</span>
+							<button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteDockerModal">
+								<span class="bi-trash" class="me-1"></span>
+								<span  id="delteDockerSpinner" class="spinner-border spinner-border-sm text-light d-none"></span>
+							</button>
+						</div>
+						<div v-if="!status.easydocker">
+							<span class="text-danger bi-x-circle-fill me-2"></span>
+							<button class="btn btn-primary" v-on:click="installDocker()">
+								{{ $t("setting.easydocker.install") }}
+								<span class="bi-wrench" class="me-1"></span>
+								<span id="installDockerSpinner" class="spinner-border spinner-border-sm text-light d-none"></span>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="d-flex flex-row align-items-center mb-3">
+					<label class="col-sm-4 col-form-label">{{ $t("setting.docker") }}</label>
+					<div class="col-sm-8">
+						<div v-if="status.dockerEngine">
+							<span class="text-success bi-check-circle-fill me-2">OK</span>
+							<button class="btn btn-warning bi-stop-fill" v-on:click="stopDocker()"></button>
+							<span class="me-2"></span>
+							<button class="btn btn-dark bi-terminal" v-on:click="openHostConsole()"></button>
+						</div> 
+						<div v-if="!status.dockerEngine && status.easydocker">
+							<span class="text-danger bi-x-circle-fill me-2"></span>
+							<button class="btn btn-primary bi-play ms-1" v-on:click="startDocker()"></button>
+						</div>
+					</div>
+				</div>
+				<!-- Setting -->
+				<div class="alert alert-info text-dark">{{ $t("setting.title.config")}}</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.config.API.URL")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">http://</div>
+						<div>
+							<input type="text" class="form-control" v-model="config.host">
+						</div>
+						<div class="mx-1">:</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em" v-model="config.port">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.config.autorun")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="me-1">{{ $t("common.no")}}</div>
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" v-model="config.autorun" true-value="Y">
+						</div>
+						<div>{{ $t("common.yes")}}</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.config.lang")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<label class="mx-2"><input class="form-check-input" type="checkbox" v-model="config.lang" true-value="ja">ja</label>
+						<label class="mx-2"><input class="form-check-input" type="checkbox" v-model="config.lang" true-value="en">en</label>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.config.dataDir")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="col-sm-11">
+							<input type="text" class="form-control" v-model="config.dataDir" readonly>
+						</div>
+						<div class="col-sm-1">
+							<button type="button" class="btn btn-warning" v-on:click="requestToOS(config.dataDir)">
+								<span class="bi-folder"></span>
+							</button>
+						</div>
+						</div>
+				</div>
+				<div class="mb-4"></div>
+				<div class="d-flex flex-row justify-content-right">
+					<div class="me-3">
+						<button type="button" class="btn btn-success" v-on:click="saveConfig()">
+							<span class="bi-server">{{ $t("common.save") }}</span>
+						</button>
+					</div>
+					<div v-if="updated" class="alert alert-success">{{ $t("setting.updated")}}</div>
+				</div>
+				<!-- Modal -->
+				<div class="modal fade" id="deleteDockerModal" tabindex="-1">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">{{$t("setting.deleteDocker.title")}}</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								{{$t("setting.deleteDocker.message")}}</h5>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+								<button type="button" class="btn btn-danger bi-trash" v-on:click="deleteDocker()"
+									data-bs-dismiss="modal"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="js/vue.global.js"></script>
+	<script src="js/vue-i18n.js"></script>
+	<script src="js/bootstrap.bundle.min.js"></script>
+	<script src="js/EasyDockerCommon.js"></script>
+	<script src="js/naviApp.js"></script>
+	<script src="js/containerApp.js"></script>
+	<script src="js/imageApp.js"></script>
+	<script src="js/settingApp.js"></script>
+</body>
+
+</html>

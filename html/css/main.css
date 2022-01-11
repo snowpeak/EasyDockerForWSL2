@@ -1,0 +1,27 @@
+.filelink{
+    color: blue;
+    text-decoration: underline;
+}
+.selected{
+    font-weight: bold;
+}
+.filelink:hover{
+    color: red;
+    cursor: pointer;
+}
+.memo{
+    max-height: 10.1em;
+    overflow-y:scroll;
+    max-width:30em;
+    overflow-x:hidden;
+    text-overflow:ellipsis;
+    border:1px solid silver;
+    border-radius: 5px;
+}
+.editMemo{
+    color:blue;
+}
+.editMemo:hover{
+    color: red;
+    cursor:grab;
+}
