@@ -3,6 +3,8 @@ data/
 dist/
 tsc/
 private/
+resource/easydocker.tar.gz
+
 
 
 # Logs

@@ -1,8 +1,7 @@
 {
-  "name": "EasyDockerForWSL2",
+  "name": "easydockerforwsl2",
   "version": "1.0.0",
   "description": "EasyDocker for WSL2",
-  "main_none": "dist/database/dbTest.js",
   "main": "tsc/electron/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,6 +11,7 @@
   },
   "build": {
     "appId": "net.osscat.easydockerforwsl2",
+    "productName": "EasyDockerForWSL2",
     "files": [
       "**/*",
       "!**/data/*",

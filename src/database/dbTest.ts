@@ -15,7 +15,7 @@ createConnection({
     let meta = con.getMetadata;
 
     let container = new Container(
-        "03", "name", "repo", "tag", "8080->8080", "メモです3", new Date().getTime());
+        "03", "name", "repo", "tag", "", "", "8080->8080", "メモです3", new Date().getTime());
     let p_ret = await container.save(con);
     console.log(p_ret);
     let list = Container.getAll(con);
