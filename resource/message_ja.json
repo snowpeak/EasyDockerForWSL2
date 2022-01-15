@@ -60,12 +60,14 @@
 	"loadImage.title":"Docker Imageをロードします",
 	"loadImage.filepath":"Imageファイル",
 	"loadImage.imageTag":"タグ名",
+	"loadImage.imageTag.help":"本システム内でイメージを一意に識別する文字列。半角の数字と英小文字で指定します。",
 	"loadImage.specifyTag":"タグを入力してください",
 	"loadImage.noFile":"ファイルがありません",
 
 	"createContainer.title":"新しいコンテナを作成します",
 	"createContainer.imageTag":"イメージTag",
 	"createContainer.name":"コンテナ名",
+	"createContainer.name.help":"コンテナ一覧で表示します。他のコンテナと重複しても構いません。",
 	"newContainer.imageId":"イメージID",
 	"createContainer.service":"サービス自動起動",
 	"createContainer.service.yes":"する",
@@ -73,6 +75,7 @@
 	"newContainer.command":"起動時実行コマンド",
 	"createContainer.hostname":"ホスト名",
 	"createContainer.portForwarding":"ポート転送",
+	"createContainer.portForwarding.help":"ホスト --> コンテナ",
 	"createContainer.memo":"メモ",
 
 	"setting.title.status":"稼働状況",

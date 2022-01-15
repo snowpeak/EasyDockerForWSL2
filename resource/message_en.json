@@ -60,11 +60,13 @@
 	"loadImage.title":"Load the docker image.",
 	"loadImage.filepath":"Image file",
 	"loadImage.imageTag":"Tag name",
+	"loadImage.imageTag.help":"Uqniqe name for image in this system. Input only number and lower alphabets.",
 	"loadImage.specifyTag":"Please input tag.",
 
 	"createContainer.title":"Create new container.",
 	"createContainer.imageTag":"Image Tag",
 	"createContainer.name":"Name",
+	"createContainer.name.help":"Show at Container List, this doesn't needed tobe unique.",
 	"newContainer.imageId":"Image ID",
 	"createContainer.service":"Service auto start",
 	"createContainer.service.yes":"Yes",
@@ -72,6 +74,7 @@
 	"newContainer.command":"Commands to run",
 	"createContainer.hostname":"Host name",
 	"createContainer.portForwarding":"Port forwardings",
+	"createContainer.portForwarding.help":"Host --> Container",
 	"createContainer.memo":"Memo",
 
 	"setting.title.status":"Status",

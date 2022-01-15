@@ -58,6 +58,11 @@ const App = Vue.createApp({
     const i18n = new VueI18n.createI18n(p_i18nJson);
     App.use(i18n);
     App.mount("#App");
+
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
 }
 
 

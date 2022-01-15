@@ -134,7 +134,7 @@
 					<div class="fw-bold" v-html="$t('common.error.connect')"></div>
 					<div class="ms-3">{{tabErr}}</div>
 				</div>
-				<div v-if="!actionErr && images!=null" class="alert alert-info">{{$t("imagetab.noimage")}}</div>
+				<div v-if="!actionErr && images=={}" class="alert alert-info">{{$t("imagetab.noimage")}}</div>
 				<div v-if="actionErr" class="alert alert-danger">{{actionErr}}</div>
 				<table class="table">
 					<tr class="text-center">
