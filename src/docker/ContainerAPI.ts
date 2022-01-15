@@ -1,7 +1,6 @@
 import {APIBase} from "./APIBase";
 import * as http from 'http';
-import { TextDecoderStream } from "stream/web";
-import { resolve } from "path/posix";
+import * as log from 'electron-log';
 
 export type ContainerJson = {
     Id : string,
@@ -60,7 +59,7 @@ export class ContainerAPI extends APIBase{
                 }
             });
             p_req.on('error', (e) => {
-                console.log('problem with request: ' + e.message);
+                log.error('problem with request: ' + e.message);
             })
         })
         p_req.write(p_postStr);

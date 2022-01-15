@@ -1,4 +1,5 @@
 import { Connection, Entity, Column, PrimaryColumn } from 'typeorm';
+import * as log from "electron-log";
 
 @Entity()
 export class Container {
@@ -44,7 +45,7 @@ export class Container {
     public async save(x_con: Connection): Promise<Container>{
         let repository  = x_con.getRepository(Container);
         let p_ret = await repository.save(this);
-        console.log("container saved: " + p_ret);
+        log.info("container saved: " + p_ret);
         return p_ret;
     }
 
@@ -56,14 +57,14 @@ export class Container {
         for(let p_obj of p_list){
             p_ret[p_obj.id] = p_obj;
         }
-        console.log("all containers: num=" + Object.keys(p_ret).length);
+        log.info("all containers: num=" + Object.keys(p_ret).length);
         return p_ret;
     }
 
     public static async getOne(x_con: Connection, x_id:string) : Promise<Container|undefined> {
         let repository  = x_con.getRepository(Container);
         let p_obj = await repository.findOne({id:x_id});
-        console.log("get one container:", p_obj);
+        log.info("get one container:", p_obj);
         return p_obj;
     }
 
@@ -71,7 +72,7 @@ export class Container {
         let repository  = x_con.getRepository(Container);
         let p_target = new Container(x_id, "", "", "", "", "", "", "", -1);
         let p_obj = await repository.remove(p_target);
-        console.log("delete container: ", x_id);
+        log.info("delete container: ", x_id);
         return true;
     }
 }

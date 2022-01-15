@@ -10,7 +10,7 @@ export class i18nUtil{
             en: require('../../resource/message_en.json')
         }
         let p_i18n = {
-            locale: p_config.getParam("lang"),
+            locale: p_config.getString("lang", "ja"),
             fallbackLocale: 'ja',
             messages: p_msg
         }

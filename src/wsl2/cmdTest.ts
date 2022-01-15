@@ -1,5 +1,3 @@
-import { toASCII } from "punycode";
-import { json } from "stream/consumers";
 import { WSL2 } from "./wsl2"
 
 async function status() {
@@ -67,5 +65,47 @@ import * as iconv from 'iconv-lite';
     }
 }())
 */
-console.log(process.env['USERPROFILE']);
+
+import * as fs from "fs";
+import * as yauzl from 'yauzl';
+yauzl.open('C:\\mydisk\\tmp\\wf7750.zip', {lazyEntries:true}, function(err, zipfile){
+    console.log('open');
+    if(err){
+        console.log(err);
+        return;
+    }
+    zipfile?.readEntry();
+    zipfile?.on("entry", function(entry){
+        console.log(entry.fileName);
+        if(entry.fileName == 'info.json'){
+            zipfile.openReadStream(entry, function(err, readStream){
+                let p_data = "";
+                readStream?.on("end", function(){
+                    console.log("info.json: " + p_data );
+                    zipfile?.readEntry();
+                });
+                readStream?.on("data", function(chunk){
+                    p_data += chunk;
+                });
+            })
+
+        } else if(entry.fileName == 'image.tar.gz'){
+            zipfile.openReadStream(entry, function(err, readStream){
+                readStream?.on("end", function(){
+                    console.log("image.tar.gz wrote.");
+                    zipfile.readEntry();
+                });
+                readStream?.pipe(fs.createWriteStream('C:\\mydisk\\tmp\\image.tar.gz'));
+            })
+        } else {
+            console.log('else:'+ entry.fileName);
+            zipfile.readEntry();
+        }
+    })
+})
+
+
+
+
+//console.log(process.env['USERPROFILE']);
 

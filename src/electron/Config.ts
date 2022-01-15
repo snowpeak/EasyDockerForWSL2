@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import * as log from 'electron-log';
 declare var process: {
     env: {
         USERPROFILE: string
@@ -12,6 +13,7 @@ var DEFAULT_CONFIG : {[key:string]:any}= {
     autorun: "Y",
     lang: "ja",
     dbg: false,
+    loglevel: 'error',
     dataDir: "", // set at _loadConfig()
     mainWin:{
         width: 1200,
@@ -87,7 +89,7 @@ export class Config {
      * @param {String} x_path 必要なパラメータへのパス( 例 set01/name)
      * @return 値(基本的にはStringだが、配列だったりjsonだったりすることがある) 
      */
-    getParam(x_path: string):string|number|boolean|null {
+    private getParam(x_path: string):string|number|boolean|null {
         if (x_path == null || x_path.length == 0 || this.m_json == {}) {
             return null;
         }
@@ -103,6 +105,24 @@ export class Config {
             }
         }
         return p_value;
+    }
+
+        /**
+     * コンフィグ値をstringで取り出す
+     * @param x_path パラメータへのパス( 例 set01/width)
+     * @param x_default パラメータがない時のデフォルト値 
+     */
+    getString(x_path: string, x_default: string): string | null {
+        let p_value = this.getParam(x_path);
+        if (typeof (p_value) === "string") {
+            return p_value;
+        }
+
+        let p_ret = x_default;
+        if (p_value) {
+            p_ret = String(p_value);
+        }
+        return p_ret;
     }
 
     /**
@@ -182,7 +202,6 @@ export class Config {
 }
 
 function _loadConfigFile(x_path: string): { [key:string]:any} {
-    console.log("load config:" + x_path);
     let p_config = DEFAULT_CONFIG;
     p_config["dataDir"] =  Config.getDataDir();
 
@@ -198,13 +217,13 @@ function _loadConfigFile(x_path: string): { [key:string]:any} {
 }
 
 function _saveConfigFile(x_path: string, x_json: {}): boolean {
-    console.log("save config:" + x_path);
+    log.info("save config:" + x_path);
     try {
         let p_jsonStr = JSON.stringify(x_json, null, 2);
         fs.writeFileSync(x_path, p_jsonStr);
         return true;
     } catch (e) {
-        console.log(e);
+        log.error(e);
         return false;
     }
 }

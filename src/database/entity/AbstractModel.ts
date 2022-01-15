@@ -1,4 +1,5 @@
 import { Connection} from "typeorm";
+import * as log from "electron-log";
 
 export abstract class AbstractModel{
     private classObj: any;
@@ -15,7 +16,7 @@ export abstract class AbstractModel{
     public static async getAll(x_con: Connection) : Promise<AbstractModel[]> {
         let repository  = x_con.getRepository(AbstractModel);
         let list = await repository.find();
-        console.log("all containers: ", list);
+        log.info("all containers: ", list);
         return list;
     }
 }

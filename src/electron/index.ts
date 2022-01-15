@@ -1,15 +1,19 @@
 import * as electron from "electron";
 const app = electron.app;
 import {ipcMain} from "electron";
+import {ElectronLog} from "electron-log";
+import * as log from "electron-log";
 
 import {Config} from './Config';
 import path from "path";
+import fs from "fs";
 
 import {MainWin} from './MainWin';
 
 //------------------------
 // 定数定義
 //------------------------
+const VER_NO = "1.1.0";
 
 //------------------------
 // スタティック変数
@@ -17,6 +21,21 @@ import {MainWin} from './MainWin';
 var s_tray:electron.Tray|null = null;
 var s_mainWin:MainWin|null = null;
 var s_config = Config.getInstance();
+
+//-------------------------
+// ログ関連
+//------------------------
+let logfile = path.resolve(Config.getDataDir(), "log.txt" );
+//fs.unlinkSync(logfile);
+log.transports.file.resolvePath = () => path.resolve(Config.getDataDir(), "log.txt" );
+log.transports.file.level = false; 
+let p_config_loglevel = s_config.getString("loglevel", "");
+if("error" == p_config_loglevel){
+	log.transports.file.level = "error";
+}else if("info" == p_config_loglevel){
+	log.transports.file.level = "info";
+}
+log.info('app start');
 
 //-------------------------
 // タスクトレイ作成
@@ -43,7 +62,7 @@ function createTray(){
 			icon: nativeImage.createFromPath(`${__dirname}/../../resource/image/icon-32.png`),
 			click: () => {
 				electron.dialog.showMessageBoxSync({
-					title: 'EasyDocker for WSL2 Ver.1.0.0.0',
+					title: 'EasyDocker for WSL2 ${VERNO}',
 					message: "メッセージ",
 					detail:  "詳細"
 				});
@@ -60,7 +79,6 @@ function createTray(){
 	]));
 	
 	p_tray.on('click', (event, bounds, position) => {
-        console.log('clicked');
         if(s_mainWin && s_mainWin.getWin()){
             s_mainWin.focus();
         }else{
@@ -92,12 +110,12 @@ app.on('ready', ()=>{
 		"synchronize": true
 	}).then(async con => {
 		s_con = con;
-		console.log("db connection established:" + p_dbfile)
-	}).catch(error => console.log(error));
+		log.info("db connection established:" + p_dbfile)
+	}).catch(error => log.error(error));
 
 	let p_config = Config.getInstance();
-	let p_autorun = p_config.getParam("autorun");
-	if(p_autorun){
+	let p_autorun = p_config.getString("autorun", "");
+	if(p_autorun == "Y"){
 		WSL2.start();
 	}
 });
@@ -297,13 +315,26 @@ ipcMain.on('createContainer', (x_event, x_name, x_repo, x_tag, x_service,
 				},
 			}
 			ContainerAPI.create(p_info, true, (x_err, x_id)=>{
-				x_event.sender.send("resCreateContainer", x_err);
-				if(x_id){
+				if( x_err ){
+					log.error("failed to create container, reason=" + x_err);
+					if(x_id){
+						// delete
+						ContainerAPI.delete(x_id, (x_err)=>{
+							if(x_err){
+								log.error("failed to delete container, id=" + x_id);
+							}else{
+								log.error("deleted container, id=" + x_id);
+							}
+						})
+					}
+					x_event.sender.send("resCreateContainer", x_err);
+
+				}else if(x_id){
 					let p_db = new ContainerTbl(x_id, x_name, x_repo, x_tag, x_service, x_host, JSON.stringify(p_portJson), x_memo, new Date().getTime());
 					p_db.save(s_con);
 
+					x_event.sender.send("resCreateContainer", null);// success
 					if(s_mainWin){
-						console.log("getAllContainers after createContainer!");
 						getAllContainer(s_mainWin.getWin().webContents);
 					}
 				}
@@ -329,10 +360,10 @@ ipcMain.on('getImageById', (x_event, x_id)=>{
 						let p_info:{}|null = null;
 						if(x_imgTbl != null){
 							try{
-								console.log(x_imgTbl.info_json);
+								log.info(x_imgTbl.info_json);
 								p_info = JSON.parse(x_imgTbl.info_json);
 							}catch(e){
-								console.log(e);
+								log.error(e);
 							}
 						}
 						x_event.sender.send('resGetImageById', x_err, p_image, p_info);
@@ -441,7 +472,7 @@ ipcMain.on('getStatus', (x_event)=>{
 	};
 	(async function(){
 		try {
-			let p_res = await WSL2.execCommand("wsl -l --all -v");
+			let p_res = await WSL2.execCommand("wsl -l --all -v", "UTF-16");
 			p_status.wsl2 = true;
 
 			let p_lines = p_res.split(/[\n\r]/);
@@ -471,7 +502,7 @@ ipcMain.on('getStatus', (x_event)=>{
 ipcMain.on('installDocker', (x_event) => {
 	WSL2.install((x_result)=>{
 		x_event.sender.send('resInstallDocker', x_result);
-		console.log("replay resInstallDocker");
+		log.info("replay resInstallDocker");
 	});
 })
 ipcMain.on('deleteDocker', (x_event) => {

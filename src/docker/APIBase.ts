@@ -1,6 +1,6 @@
 import * as http from 'http';
 import {Config} from '../electron/Config';
-import {ContainerJson} from './ContainerAPI';
+import * as log from 'electron-log';
 
 export type IdJson = {
     Id : string,
@@ -12,8 +12,8 @@ export abstract class APIBase{
         let p_config = Config.getInstance();
 
         let p_options = {
-          host: p_config.getParam('host'),
-          port: p_config.getParam('port'),
+          host: p_config.getString('host', ""),
+          port: p_config.getString('port', ""),
           path: x_path,
           method: x_method,
           headers: {}
@@ -50,7 +50,7 @@ export abstract class APIBase{
             });
         })
         p_req.on('error', (e) => {
-            console.log('problem with request: ' + e.message);
+            log.error('problem with request: ' + e.message);
             x_func(e.message, null);
         })
         if(x_postData){
