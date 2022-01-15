@@ -408,6 +408,12 @@ ipcMain.on('loadImageWin', (x_event)=>{
 	let p_win = new LoadImageWin(p_width, p_height, p_dbg);
 })
 
+ipcMain.on('checkZipFile', (x_event, x_filePath) => {
+	ImageAPI.extractInfoJson(x_filePath, (x_err, x_json) => {
+		x_event.sender.send("resCheckZipFile", x_err, x_json);
+	})
+})
+
 import {Image as ImageTbl} from '../database/entity/Image.entity';
 ipcMain.on('loadImage', (x_event, x_filePath, x_repo, x_tag) => {
 	// x_repo と x_tag が被らないか確認する

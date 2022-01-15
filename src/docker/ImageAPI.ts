@@ -25,6 +25,53 @@ export class ImageAPI extends APIBase {
         super.sendThenBool(p_options, null, 200, x_func);
     }
 
+    public static extractInfoJson(x_filePath: string, x_func: (x_err: string | null, x_json:{}|null) => void) {
+        let p_json:{}|null = null;
+
+        if (x_filePath.endsWith(".zip")) {
+            // yauzl version
+            yauzl.open(x_filePath, {lazyEntries:true}, function(err, zipfile){
+                log.info('open: ' + x_filePath);
+                if(err){
+                    log.error(err);
+                    x_func(String(err), null);
+                    return;
+                }
+                zipfile?.readEntry();
+                zipfile?.on("entry", function(entry){
+                    if(entry.fileName == 'info.json'){
+                        zipfile.openReadStream(entry, function(err, readStream){
+                            let p_data = "";
+                            readStream?.on("end", function(){
+                                log.info("info.json: " + p_data );
+                                try{
+                                    p_json = JSON.parse(p_data);
+                                    x_func(null, p_json);
+                                }catch(e){
+                                    x_func(String(e), null);
+                                }
+                                zipfile?.readEntry();
+                            });
+                            readStream?.on("data", function(chunk){
+                                p_data += chunk;
+                            });
+                        })
+                    } else {
+                        zipfile.readEntry();
+                    }
+                })
+                zipfile?.on("end", ()=>{
+                    log.info(x_filePath + " unzipped.")
+                    if(p_json == null){
+                        x_func("The file doesn't seem to be for EasyDockerForWSL2.", null);
+                    }
+                })
+            }) 
+        }else{
+            x_func("not zip file", null);            
+        }
+    }
+
     public static loadImage(x_filePath: string, x_repo: string, x_tag: string, x_func: (x_err: string | null, x_info:string|null) => void) {
         let p_url = `/images/create?fromSrc=-&repo=${x_repo}&tag=${x_tag}`
         var p_options = super.getOptions(p_url, "POST", "", "");

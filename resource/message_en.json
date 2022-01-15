@@ -64,6 +64,7 @@
 	"loadImage.imageTag":"Tag name",
 	"loadImage.imageTag.help":"Uqniqe name for image in this system. Input only number and lower alphabets.",
 	"loadImage.specifyTag":"Please input tag.",
+	"loadImage.checkFile":"If zip format, you can check the contents.",
 
 	"createContainer.title":"Create new container.",
 	"createContainer.imageTag":"Image Tag",

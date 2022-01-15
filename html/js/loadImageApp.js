@@ -10,22 +10,55 @@ const App = Vue.createApp({
             tag: null,
             tag_err: false,
 
+            zipErr : null,
+            infoJson : null,
+            protocols:["TCP","TCP","","",""],
+            locals:["","","","",""],
+            remotes:["","","","",""],
+
+
             loadErr: null
         }
     },
     created() {
         if (window.LoadImageWinBridge) {
             window.LoadImageWinBridge.resSelectFile(this.resSelectFile);
+            window.LoadImageWinBridge.resCheckZipFile(this.resCheckZipFile);
             window.LoadImageWinBridge.resLoadImage(this.resLoadImage);
         }
     },
     methods: {
         selectFile: function(){
-            window.LoadImageWinBridge.selectFile("DockerImage", ["zip","tar","tar.gz"]);
+            window.LoadImageWinBridge.selectFile("DockerImage", ["zip","tar.gz"]);
         },
         resSelectFile: function (x_path) {
             if(x_path){
+                if(x_path != this.filePath){
+                    this.zipErr = null;
+                    this.infoJson = null;
+                }
                 this.filePath = x_path;
+            }
+        },
+        checkZipFile: function(){
+            window.LoadImageWinBridge.checkZipFile(this.filePath);
+        },
+        resCheckZipFile: function (x_err, x_json) {
+            this.zipErr = null;
+            this.infoJson = null;
+            if(x_err){
+                console.log(x_err);
+                this.zipErr = x_err;
+            }else if(x_json){
+                this.infoJson = x_json;
+                let p_idx = 0;
+                for(let p_port of x_json.port_json){
+                    this.protocols[p_idx] = p_port.protocol;
+                    this.locals[p_idx] = p_port.local;
+                    this.remotes[p_idx] = p_port.remote;
+                }
+                console.log("resCheckZipFile: " + x_json);
+                console.log(x_json.port_json);
             }
         },
         loadImage: function(x_id){

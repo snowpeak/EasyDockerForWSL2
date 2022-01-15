@@ -65,6 +65,7 @@
 	"loadImage.imageTag.help":"本システム内でイメージを一意に識別する文字列。半角の数字と英小文字で指定します。",
 	"loadImage.specifyTag":"タグを入力してください",
 	"loadImage.noFile":"ファイルがありません",
+	"loadImage.checkFile":"zip形式の場合、ファイルの内容を事前に確認できます",
 
 	"createContainer.title":"新しいコンテナを作成します",
 	"createContainer.imageTag":"イメージTag",

@@ -22,6 +22,14 @@ contextBridge.exposeInMainWorld("LoadImageWinBridge",{
     //-------------------------
     // イメージ
     //-------------------------
+    checkZipFile:(x_path:string)=>{
+        ipcRenderer.send("checkZipFile", x_path);
+    },
+    resCheckZipFile:(x_func:(x_err:string, x_json:{})=>void) =>{
+        ipcRenderer.on("resCheckZipFile", (x_event, x_err:string, x_json:{}) =>{
+            x_func(x_err, x_json);
+        })
+    },
     loadImage:(x_path:string, x_repo:string, x_tag:string)=>{
         ipcRenderer.send("loadImage", x_path, x_repo, x_tag);
     },
