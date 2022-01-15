@@ -1,12 +1,13 @@
 import { APIBase } from "./APIBase";
-import {Image as ImageTbl} from '../database/entity/Image.entity';
 
 import * as http from 'http';
 import * as fs from 'fs';
 import * as zlib from 'zlib';
 
 import * as Archiver from 'archiver';
-import AdmZip from 'adm-zip';
+import * as yauzl from 'yauzl';
+
+import * as log from 'electron-log';
 
 export type ImageJson = {
     Id: string,
@@ -51,7 +52,50 @@ export class ImageAPI extends APIBase {
             return;
         })
 
+        // extract zip and send to Docker
         if (x_filePath.endsWith(".zip")) {
+            // yauzl version
+            yauzl.open(x_filePath, {lazyEntries:true}, function(err, zipfile){
+                log.info('open: ' + x_filePath);
+                if(err){
+                    log.error(err);
+                    x_func(String(err), null);
+                    return;
+                }
+                zipfile?.readEntry();
+                zipfile?.on("entry", function(entry){
+                    if(entry.fileName == 'info.json'){
+                        zipfile.openReadStream(entry, function(err, readStream){
+                            let p_data = "";
+                            readStream?.on("end", function(){
+                                log.info("info.json: " + p_data );
+                                zipfile?.readEntry();
+                            });
+                            readStream?.on("data", function(chunk){
+                                p_data += chunk;
+                            });
+                        })
+            
+                    } else if(entry.fileName == 'image.tar.gz'){
+                        log.info(entry.fileName);
+                        zipfile.openReadStream(entry, function(err, readStream){
+                            readStream?.on("end", function(){
+                                log.info("image.tar.gz uploaded.");
+                                zipfile.readEntry();
+                            });
+                            readStream?.pipe(p_req);
+                        })
+                    } else {
+                        log.info('else:'+ entry.fileName);
+                        zipfile.readEntry();
+                    }
+                })
+                zipfile?.on("end", ()=>{
+                    log.info(x_filePath + " unzipped.")
+                })
+            })
+            /* adm-zip version */
+            /*
             const zip = new AdmZip(x_filePath);
             for(const zipEntry of zip.getEntries()){
                 if(zipEntry.entryName == "info.json"){
@@ -64,6 +108,7 @@ export class ImageAPI extends APIBase {
                     });
                 }
             }
+            */
         } else {
             // Imageを送信する
             try {
@@ -104,7 +149,6 @@ export class ImageAPI extends APIBase {
             let p_req = http.request(p_options, (x_res) => {
                 archive.append(x_res.pipe(gz), { name: "image.tar.gz"});
                 x_res.on('end', function () {
-                    //console.log('STATUS: ' + res.statusCode); // 200 success
                     if (x_res.statusCode != 200) {
                         x_func(String(x_res.statusCode));
                     } else {
@@ -114,7 +158,7 @@ export class ImageAPI extends APIBase {
                 });
             });
             p_req.on('error', function (x_err) {
-                console.log('Error: ', x_err);
+                log.error('Error: ', x_err);
                 x_func(x_err.message)
                 archive.finalize();
             });
@@ -141,7 +185,7 @@ export class ImageAPI extends APIBase {
                 });
             });
             p_req.on('error', function (x_err) {
-                console.log('Error: ', x_err);
+                log.error('Error: ', x_err);
                 x_func(x_err.message)
             });
             p_req.end();
