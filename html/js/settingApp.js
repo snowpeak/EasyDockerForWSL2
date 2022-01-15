@@ -6,13 +6,36 @@ const App = Vue.createApp({
                 "easydocker": true,
                 "dockerEngine": true,
             },
-            config:{
-                "host": "localhost",
-                "port": "2376",
-                "autorun": "Y",
-                "lang": "ja",
-                "dataDir": ""
+            config: {
+                host: "localhost",
+                port: "12375",
+                autorun: "Y",
+                lang: "ja",
+                dbg: false,
+                loglevel: 'error',
+                dataDir: "", // set at _loadConfig()
+                mainWin:{
+                    width: 1200,
+                    height: 800,
+                },
+                editMemoWin:{
+                    width: 600,
+                    height: 800,
+                },
+                createContainerWin:{
+                    width: 800,
+                    height: 800,
+                },
+                exportImageWin:{
+                    width: 700,
+                    height: 800,
+                },
+                loadImageWin:{
+                    width: 700,
+                    height: 800,
+                }
             },
+            init: false,
             updated:false,
         }
     },
@@ -71,6 +94,8 @@ const App = Vue.createApp({
         },
 
         resGetConfig: function(x_config){
+            this.init = true;
+            console.log(x_config);
             this.config = x_config;
         },
         saveConfig: function(){
@@ -98,11 +123,15 @@ const App = Vue.createApp({
     let p_if = App.mount("#settingApp");
 
     let p_tab = document.getElementById("setting-tab");
+    console.log("setting-tab = " + p_tab);
     p_tab.addEventListener('shown.bs.tab', function (event) {
         window.MainWinBridge.getStatus();
         window.MainWinBridge.getConfig();
-        //p_if.$data.updated = false;
     });
+
+    let p_help = document.getElementById("loglevelHelp");
+    console.log("p_help: " + p_help);
+    new bootstrap.Tooltip(p_help);
 }
 
 

@@ -536,5 +536,21 @@ ipcMain.on('saveConfig', (x_event, x_config)=>{
 		p_config.setParam(p_key, p_value);
 	}
 	p_config.saveConfig();
+
+	// ログレベルの変更
+	let p_loglevel = p_config.getString("loglevel", "info");
+	if(log.transports.file.level != p_loglevel){
+		if("error" == p_loglevel){
+			// info --> error
+			log.info("loglevel changed to " + p_loglevel);
+			log.transports.file.level = "error";
+		}else if("info" == p_loglevel){
+			// error --> info
+			log.transports.file.level = "info";
+			log.info("loglevel changed to " + p_loglevel); 
+		}else{
+			log.info("invalid loglevel" + p_loglevel);
+		}
+	}
 	x_event.sender.send('resGetConfig', p_config.getConfig());
 })

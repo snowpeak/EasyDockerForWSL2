@@ -14,6 +14,8 @@
 	"common.yes":"Yes",
 	"common.no":"No",
 	"common.error.connect":"Failed to connect Docker Engine.\nPlease See the status in [Setting]Tab.",
+	"common.width":"Width",
+	"common.height":"Height",
 
 	"navi":{
 		"container":"Container",
@@ -85,10 +87,21 @@
 	"setting.deleteDocker.title":"Do you really delete Docker Environment?",
 	"setting.deleteDocker.message":"All containers and images will be deleted.",
 	"setting.docker":"Docker Engine",
-	"setting.title.config":"Preference",
+
+	"setting.title.user":"User Setting",
+	"setting.config.lang":"Language",
+	"setting.user.mainWin":"Main Window",
+	"setting.user.editMemoWin":"Edit Memo Window",
+	"setting.user.exportImageWin":"Export Container Window",
+	"setting.user.createContainerWin":"Create Container Window",
+	"setting.user.loadImageWin":"Load Image Window",
+
+	"setting.title.config":"System Setting",
+	"setting.config.dbg":"Debug Mode",
+	"setting.config.loglevel":"Log Level",
+	"setting.config.loglevel.help":"Generally set 'error'. Logfile is written in Work Directory.",
 	"setting.config.API.URL":"API connection",
 	"setting.config.autorun":"Autorun Docker Engine",
-	"setting.config.lang":"Language",
 	"setting.config.dataDir":"Work Directory",
 	"setting.updated":"Updated. Close window then re-open window.",
 

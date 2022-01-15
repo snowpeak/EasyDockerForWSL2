@@ -10,9 +10,9 @@
 
 	<script>
 		var s_init = false;
-		setTimeout(()=>{
+		setTimeout(() => {
 			let p_msg = document.getElementById("startupMsg");
-			if(p_msg && !s_init){
+			if (p_msg && !s_init) {
 				p_msg.classList.remove("d-none");
 			}
 		}, 2000);
@@ -37,7 +37,7 @@
 	</ul>
 	<div class="alert alert-info d-none m-3" id="startupMsg">Starting up. Please wait a momoment!</div>
 	<div class="tab-content mx-4" id="tabDiv">
-		<div class="tab-pane fade show active d-none" id="containerTab" role="tabpanel" >
+		<div class="tab-pane fade show active d-none" id="containerTab" role="tabpanel">
 			<div id="containerApp">
 				<div v-if="tabErr" class="alert alert-warning">
 					<div class="fw-bold" v-html="$t('common.error.connect')"></div>
@@ -77,14 +77,19 @@
 						<td class="text-nowrap">
 							<button v-if="container.State == 'running'" class="btn text-light bg-dark bi-terminal"
 								v-on:click="openConsole(container.Id)"></button>
-								<button v-if="container.State != 'running'" class="btn bi-terminal-x text-white" disabled></button>
-									<!--
+							<button v-if="container.State != 'running'" class="btn bi-terminal-x text-white"
+								disabled></button>
+							<!--
 							<button class="btn btn-primary bi-files"></button>
 							-->
 							<button class="btn btn-success bi-save" v-on:click="exportImageWin(container.Id)"></button>
 						</td>
-						<td><div class="text-nowrap" v-html="ports(container)"></div></td>
-						<td><pre class="memo mb-1 p-1" v-if="container.dbInfo  && container.dbInfo.memo">{{container.dbInfo.memo}}</pre>
+						<td>
+							<div class="text-nowrap" v-html="ports(container)"></div>
+						</td>
+						<td>
+							<pre class="memo mb-1 p-1"
+								v-if="container.dbInfo  && container.dbInfo.memo">{{container.dbInfo.memo}}</pre>
 							<div v-on:click="editMemoWin(container.Id)" class="editMemo mt-1">edit</div>
 						</td>
 						<td>
@@ -158,7 +163,8 @@
 					</tr>
 				</table>
 				<!-- add -->
-				<button v-if="!tabErr && images!=null" type="button" class="btn btn-success bi-plus-circle" v-on:click="loadImageWin"></button>
+				<button v-if="!tabErr && images!=null" type="button" class="btn btn-success bi-plus-circle"
+					v-on:click="loadImageWin"></button>
 
 				<!-- Modal -->
 				<div class="modal fade" id="delImageModal" tabindex="-1">
@@ -202,11 +208,12 @@
 				<div class="d-flex flex-row align-items-center mb-3">
 					<label class="col-sm-4 col-form-label">{{ $t("setting.easydocker") }}</label>
 					<div class="col-sm-8">
-						<div  v-if="status.easydocker">
+						<div v-if="status.easydocker">
 							<span class="text-success bi-check-circle-fill me-2">OK</span>
 							<button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteDockerModal">
 								<span class="bi-trash" class="me-1"></span>
-								<span  id="delteDockerSpinner" class="spinner-border spinner-border-sm text-light d-none"></span>
+								<span id="delteDockerSpinner"
+									class="spinner-border spinner-border-sm text-light d-none"></span>
 							</button>
 						</div>
 						<div v-if="!status.easydocker">
@@ -214,7 +221,8 @@
 							<button class="btn btn-primary" v-on:click="installDocker()">
 								{{ $t("setting.easydocker.install") }}
 								<span class="bi-wrench" class="me-1"></span>
-								<span id="installDockerSpinner" class="spinner-border spinner-border-sm text-light d-none"></span>
+								<span id="installDockerSpinner"
+									class="spinner-border spinner-border-sm text-light d-none"></span>
 							</button>
 						</div>
 					</div>
@@ -227,15 +235,127 @@
 							<button class="btn btn-warning bi-stop-fill" v-on:click="stopDocker()"></button>
 							<span class="me-2"></span>
 							<button class="btn btn-dark bi-terminal" v-on:click="openHostConsole()"></button>
-						</div> 
+						</div>
 						<div v-if="!status.dockerEngine && status.easydocker">
 							<span class="text-danger bi-x-circle-fill me-2"></span>
 							<button class="btn btn-primary bi-play ms-1" v-on:click="startDocker()"></button>
 						</div>
 					</div>
 				</div>
-				<!-- Setting -->
+				<!-- User Setting -->
+				<div class="alert alert-info text-dark">{{ $t("setting.title.user")}}</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.lang")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<label class="mx-2"><input class="form-check-input me-1" type="checkbox" v-model="config.lang"
+								true-value="ja">ja</label>
+						<label class="mx-2"><input class="form-check-input me-1" type="checkbox" v-model="config.lang"
+								true-value="en">en</label>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.mainWin")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">{{ $t("common.width")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em" v-model="config.mainWin.width">
+						</div>
+						<div class="mx-3">x</div>
+						<div class="mx-1">{{ $t("common.height")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em" v-model="config.mainWin.height">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.editMemoWin")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">{{ $t("common.width")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.editMemoWin.width">
+						</div>
+						<div class="mx-3">x</div>
+						<div class="mx-1">{{ $t("common.height")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.editMemoWin.height">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.exportImageWin")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">{{ $t("common.width")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.exportImageWin.width">
+						</div>
+						<div class="mx-3">x</div>
+						<div class="mx-1">{{ $t("common.height")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.exportImageWin.height">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.createContainerWin")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">{{ $t("common.width")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.createContainerWin.width">
+						</div>
+						<div class="mx-3">x</div>
+						<div class="mx-1">{{ $t("common.height")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.createContainerWin.height">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.loadImageWin")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">{{ $t("common.width")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.loadImageWin.width">
+						</div>
+						<div class="mx-3">x</div>
+						<div class="mx-1">{{ $t("common.height")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.loadImageWin.height">
+						</div>
+					</div>
+				</div>
+
+				<!-- System Setting -->
 				<div class="alert alert-info text-dark">{{ $t("setting.title.config")}}</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.config.dbg")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<label class="mx-2"><input class="form-check-input me-1" type="checkbox" v-model="config.dbg"
+								true-value="true">{{ $t("common.yes")}}</label>
+						<label class="mx-2"><input class="form-check-input me-1" type="checkbox" v-model="config.dbg"
+								true-value="false">{{ $t("common.no")}}</label>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.config.loglevel")}}
+						<span id="loglevelHelp" ref="loglevelHelp" class="bi-question-circle-fill text-primary"
+							data-bs-toggle="tooltip" data-bs-placement="right"
+							v-bind:title='$t("setting.config.loglevel.help")'></span>
+					</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<label class="mx-2"><input class="form-check-input me-1" type="checkbox" v-model="config.loglevel"
+								true-value="error">error</label>
+						<label class="mx-2"><input class="form-check-input me-1" type="checkbox" v-model="config.loglevel"
+								true-value="info">info</label>
+					</div>
+				</div>
 				<div class="row mb-3">
 					<label class="col-sm-4 form-label">{{ $t("setting.config.API.URL")}}</label>
 					<div class="d-flex flex-row align-items-center col-sm-8">
@@ -260,13 +380,6 @@
 					</div>
 				</div>
 				<div class="row mb-3">
-					<label class="col-sm-4 form-label">{{ $t("setting.config.lang")}}</label>
-					<div class="d-flex flex-row align-items-center col-sm-8">
-						<label class="mx-2"><input class="form-check-input" type="checkbox" v-model="config.lang" true-value="ja">ja</label>
-						<label class="mx-2"><input class="form-check-input" type="checkbox" v-model="config.lang" true-value="en">en</label>
-					</div>
-				</div>
-				<div class="row mb-3">
 					<label class="col-sm-4 form-label">{{ $t("setting.config.dataDir")}}</label>
 					<div class="d-flex flex-row align-items-center col-sm-8">
 						<div class="col-sm-11">
@@ -277,7 +390,7 @@
 								<span class="bi-folder"></span>
 							</button>
 						</div>
-						</div>
+					</div>
 				</div>
 				<div class="mb-4"></div>
 				<div class="d-flex flex-row justify-content-right">
@@ -294,7 +407,8 @@
 						<div class="modal-content">
 							<div class="modal-header">
 								<h5 class="modal-title">{{$t("setting.deleteDocker.title")}}</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
 							</div>
 							<div class="modal-body">
 								{{$t("setting.deleteDocker.message")}}</h5>

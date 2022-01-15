@@ -14,6 +14,8 @@
 	"common.yes":"する",
 	"common.no":"しない",
 	"common.error.connect":"Dockerエンジンとの接続に失敗しました。<br>[設定]タブのステータスを確認してください。",
+	"common.width":"幅",
+	"common.height":"高さ",
 
 	"navi":{
 		"container":"コンテナ管理",
@@ -86,10 +88,21 @@
 	"setting.deleteDocker.title":"本当にDokcer環境を削除しますか?",
 	"setting.deleteDocker.message":"全てのコンテナおよびイメージを消去します。",
 	"setting.docker":"Dockerエンジン",
-	"setting.title.config":"動作設定",
+
+	"setting.title.user":"ユーザー設定",
+	"setting.user.lang":"表示言語",
+	"setting.user.mainWin":"メイン画面",
+	"setting.user.editMemoWin":"メモ編集画面",
+	"setting.user.exportImageWin":"コンテナ保存画面",
+	"setting.user.createContainerWin":"コンテナ作成画面",
+	"setting.user.loadImageWin":"イメージ登録画面",
+
+	"setting.title.config":"システム設定",
+	"setting.config.dbg":"デバッグ表示",
+	"setting.config.loglevel":"ログレベル",
+	"setting.config.loglevel.help":"通常はerrorを指定してください。ログファイルは作業ディレクトリに出力します。",
 	"setting.config.API.URL":"API接続先",
 	"setting.config.autorun":"Dockerエンジンを自動起動",
-	"setting.config.lang":"表示言語",
 	"setting.config.dataDir":"作業ディレクトリ",
 	"setting.updated":"設定を更新しました。ウィンドウを閉じて再度開いてください。",
 

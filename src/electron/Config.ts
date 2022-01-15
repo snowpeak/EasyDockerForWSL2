@@ -19,7 +19,7 @@ var DEFAULT_CONFIG : {[key:string]:any}= {
         width: 1200,
         height: 800,
     },
-    editMenuWin:{
+    editMemoWin:{
         width: 600,
         height: 800,
     },
@@ -139,7 +139,7 @@ export class Config {
         }
 
         if(typeof(p_value) === "string" ){
-            let p_ret = parseInt(p_value, 10);
+            p_ret = parseInt(p_value, 10);
             if(p_ret == NaN){
                 p_ret = parseFloat(p_value);
             }
@@ -159,6 +159,9 @@ export class Config {
         let p_value = this.getParam(x_path);
         if( typeof(p_value) === "boolean"){
             return p_value;
+        }
+        if( p_value == "false"){
+            return false;
         }
 
         let p_ret = x_default;
