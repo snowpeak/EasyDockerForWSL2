@@ -33,6 +33,7 @@ export class WSL2 {
                 let p_cmd = `wsl --import ${WSL2.DISTRIBUTION} "${p_workDir}" "${p_workFile}"`;
                 log.info("WSL2.install() step2: " + p_cmd);
                 await this.execCommand(p_cmd, "UTF-16");
+                fs.rmSync(p_workFile);
 
                 p_cmd = `wsl --set-version ${WSL2.DISTRIBUTION} 2`;
                 log.info("WSL2.install() step3: " + p_cmd);
