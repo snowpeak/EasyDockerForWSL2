@@ -46,9 +46,8 @@ export class ImageAPI extends APIBase {
                                 log.info("info.json: " + p_data );
                                 try{
                                     p_json = JSON.parse(p_data);
-                                    x_func(null, p_json);
                                 }catch(e){
-                                    x_func(String(e), null);
+                                    log.error("JSON parse error:" + String(e));
                                 }
                                 zipfile?.readEntry();
                             });
@@ -64,6 +63,8 @@ export class ImageAPI extends APIBase {
                     log.info(x_filePath + " unzipped.")
                     if(p_json == null){
                         x_func("The file doesn't seem to be for EasyDockerForWSL2.", null);
+                    }else{
+                        x_func(null, p_json);
                     }
                 })
             }) 
@@ -116,6 +117,12 @@ export class ImageAPI extends APIBase {
                             let p_data = "";
                             readStream?.on("end", function(){
                                 log.info("info.json: " + p_data );
+                                try{
+                                    JSON.parse(p_data); // check json or not.
+                                    p_returnInfo = p_data; // return string
+                                }catch(e){
+                                    log.error("failed to pase json: " + p_data)
+                                }
                                 zipfile?.readEntry();
                             });
                             readStream?.on("data", function(chunk){
