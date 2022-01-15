@@ -63,8 +63,10 @@ const containerApp = Vue.createApp({
                 p_msg.classList.add("d-none");
             }
 
-            let p_tab = document.getElementById("container-tab");
-            p_tab.click();
+            if(!x_err){
+                let p_tab = document.getElementById("container-tab");
+                p_tab.click();
+            }
         },
         startContainer: function (x_id) {
             common_startSpinner("startSpinner_" + x_id);

@@ -134,7 +134,7 @@
 					<div class="fw-bold" v-html="$t('common.error.connect')"></div>
 					<div class="ms-3">{{tabErr}}</div>
 				</div>
-				<div v-if="!actionErr && (images==null || images.length==0)" class="alert alert-info">{{$t("imagetab.noimage")}}</div>
+				<div v-if="!actionErr && images!=null" class="alert alert-info">{{$t("imagetab.noimage")}}</div>
 				<div v-if="actionErr" class="alert alert-danger">{{actionErr}}</div>
 				<table class="table">
 					<tr class="text-center">
@@ -157,7 +157,7 @@
 					</tr>
 				</table>
 				<!-- add -->
-				<button v-if="!tabErr" type="button" class="btn btn-success bi-plus-circle" v-on:click="loadImageWin"></button>
+				<button v-if="!tabErr && images!=null" type="button" class="btn btn-success bi-plus-circle" v-on:click="loadImageWin"></button>
 
 				<!-- Modal -->
 				<div class="modal fade" id="delImageModal" tabindex="-1">
