@@ -56,6 +56,7 @@ const App = Vue.createApp({
                     this.protocols[p_idx] = p_port.protocol;
                     this.locals[p_idx] = p_port.local;
                     this.remotes[p_idx] = p_port.remote;
+                    p_idx++;
                 }
                 console.log("resCheckZipFile: " + x_json);
                 console.log(x_json.port_json);
