@@ -92,6 +92,7 @@
 	"setting.title.user":"User Setting",
 	"setting.config.lang":"Language",
 	"setting.user.mainWin":"Main Window",
+	"setting.user.fileWin":"File List in Container Window",
 	"setting.user.editMemoWin":"Edit Memo Window",
 	"setting.user.exportImageWin":"Export Container Window",
 	"setting.user.createContainerWin":"Create Container Window",
@@ -106,6 +107,20 @@
 	"setting.config.dataDir":"Work Directory",
 	"setting.updated":"Updated. Close window then re-open window.",
 
+	"fileWin" : {
+		"title": "File list in container",
+		"user": "user",
+		"dir": "dir",
+		"remoteDir": "Foler in Remote Server",
+		"permission": "permisson",
+		"owner": "owner",
+		"group": "group",
+		"size": "size",
+		"date": "timestamp",
+		"name": "name",
+		"operation": "operation",
+		"hostDir": "Work Foler in Host"
+	},
 
 	"end": "end"
 

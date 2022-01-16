@@ -68,6 +68,9 @@ const containerApp = Vue.createApp({
                 p_tab.click();
             }
         },
+        fileWin: function(x_id){
+            window.MainWinBridge.fileWin(x_id);
+        },
         startContainer: function (x_id) {
             common_startSpinner("startSpinner_" + x_id);
             window.MainWinBridge.startContainer(x_id);

@@ -93,6 +93,7 @@
 	"setting.title.user":"ユーザー設定",
 	"setting.user.lang":"表示言語",
 	"setting.user.mainWin":"メイン画面",
+	"setting.user.fileWin":"コンテナ内ファイル一覧画面",
 	"setting.user.editMemoWin":"メモ編集画面",
 	"setting.user.exportImageWin":"コンテナ保存画面",
 	"setting.user.createContainerWin":"コンテナ作成画面",
@@ -106,6 +107,21 @@
 	"setting.config.autorun":"Dockerエンジンを自動起動",
 	"setting.config.dataDir":"作業ディレクトリ",
 	"setting.updated":"設定を更新しました。ウィンドウを閉じて再度開いてください。",
+
+	"fileWin" : {
+		"title": "コンテナ内ファイル一覧",
+		"user": "実行ユーザー",
+		"dir": "ディレクトリ",
+		"remoteDir": "リモートサーバーのフォルダ",
+		"permission": "権限",
+		"owner": "所有者",
+		"group": "グループ",
+		"size": "サイズ",
+		"date": "最終更新日",
+		"name": "名称",
+		"operation": "操作",
+		"hostDir": "ホスト側の作業フォルダ"
+	},
 
 	"end": "end"
 }

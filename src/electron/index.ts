@@ -79,13 +79,13 @@ function createTray(){
 	]));
 	
 	p_tray.on('click', (event, bounds, position) => {
-        if(s_mainWin && s_mainWin.getWin()){
-            s_mainWin.focus();
+		if(s_mainWin  && s_mainWin.isValid()){
+			s_mainWin.focus();
         }else{
 			let p_width = s_config.getNum("mainWin/width", 1000);
 			let p_height = s_config.getNum("mainWin/height", 800);
 			let p_dbg = s_config.getBool("dbg", false);
-            s_mainWin = new MainWin(p_width, p_height, p_dbg);
+			s_mainWin = new MainWin(p_width, p_height, p_dbg);
         }
 	});
 	return p_tray;
@@ -118,6 +118,9 @@ app.on('ready', ()=>{
 	if(p_autorun == "Y"){
 		WSL2.start();
 	}
+
+	let p_downloadDir = path.resolve(p_dir, "download");
+	fs.rmSync(p_downloadDir, {recursive:true, force:true});
 });
 
 // 終了処理
@@ -560,3 +563,81 @@ ipcMain.on('saveConfig', (x_event, x_config)=>{
 	}
 	x_event.sender.send('resGetConfig', p_config.getConfig());
 })
+
+// ファイルリストウィンドウ
+import {FileWin} from './FileWin';
+import { AbstractWin } from "./AbstractWin";
+ipcMain.on('fileWin', (x_event, x_id:string)=>{
+	let p_width = s_config.getNum("fileWin/width", 600);
+	let p_height = s_config.getNum("fileWin/height", 800);
+	let p_dbg = s_config.getBool("dbg", false);
+	let p_win = new FileWin(p_width, p_height, p_dbg, "containerId=" + x_id);
+})
+ipcMain.on('getFileInfo', (x_event, x_id, x_path, x_user)=>{
+	ContainerAPI.getFileInfo(x_id, x_path, x_user, (x_err, x_json)=>{
+		x_event.sender.send('resGetFileInfo', x_err, x_json, x_path);
+	})
+})
+ipcMain.on('downloadFile', (x_event, x_id, x_winId, x_path, x_user, x_spinnerid)=>{
+	let p_win = AbstractWin.getWinById(x_winId);
+	let p_workDir = (p_win as FileWin).getWorkDir();
+	ContainerAPI.downloadFile(x_id, x_path, x_user, p_workDir, (x_err)=>{
+		x_event.sender.send('resDownloadFile', x_err, x_spinnerid);
+		getHostFileList(p_workDir, (x_err, x_files)=>{
+			console.log(x_files);
+			x_event.sender.send('resReloadWorkDir', x_err, x_files);
+		})
+	})
+})
+ipcMain.on('uploadFile', (x_event, x_containerId, x_winId, x_file, x_toDir, x_user, x_spinnerid)=>{
+	let p_win = AbstractWin.getWinById(x_winId);
+	let p_workDir = (p_win as FileWin).getWorkDir();
+	ContainerAPI.uploadFile(x_containerId, p_workDir, x_file, x_toDir, x_user, (x_err)=>{
+		x_event.sender.send('resUploadFile', x_err, x_spinnerid);
+		ContainerAPI.getFileInfo(x_containerId, x_toDir, x_user, (x_err, x_json)=>{
+			x_event.sender.send('resGetFileInfo', x_err, x_json, x_toDir);
+		})
+	})
+})
+
+ipcMain.on('reloadWorkDir', (x_event, x_winId)=>{
+	let p_win = AbstractWin.getWinById(x_winId);
+	let p_workDir = (p_win as FileWin).getWorkDir();
+	getHostFileList(p_workDir, (x_err, x_files)=>{
+		console.log(x_files);
+		x_event.sender.send('resReloadWorkDir', x_err, x_files);
+	})
+})
+
+ipcMain.on('openFile', (x_event, x_winId, x_file)=>{
+	let p_win = AbstractWin.getWinById(x_winId);
+	let p_workDir = (p_win as FileWin).getWorkDir();
+	if(x_file){
+		WSL2.requestToOS(path.resolve(p_workDir, x_file));
+	}else {
+		WSL2.requestToOS(p_workDir);
+	}
+})
+
+function getHostFileList(x_dir:string, x_func:(x_err:string|null, x_files:{}[])=>void){
+	fs.readdir(x_dir, (x_err, x_files)=>{
+		if(x_err){
+			x_func(String(x_err), []);
+			return;
+		}
+		let p_ret = [];
+		for(let p_file of x_files){
+			let p_info = fs.statSync(path.resolve(x_dir, p_file));
+			if(!p_info.isFile()){
+				continue;
+			}
+			let p_fileInfo = {
+				name: p_file,
+				size: p_info.size,
+				date: p_info.mtime.toLocaleDateString() + " " + p_info.mtime.toLocaleTimeString()
+			}
+			p_ret.push(p_fileInfo);
+		}
+		x_func(null, p_ret);
+	})
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <title>EasyDocker For WSL2</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-icons.css">
+    <style>
+        .optionParam {
+            border: 1px solid silver;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .scrollTbl {
+            max-height: 15em;
+            overflow-y: scroll;
+            border: 1px solid silver;
+        }
+
+        .anchorLink {
+            color: blue;
+            text-decoration:underline;
+        }
+        .anchorLink:hover {
+            cursor: grab;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="App" class="mx-4">
+        <div class="d-flex flex-row flex-nowrap">
+            <div class="alert alert-primary col-11" role="alert">{{ $t("fileWin.title")}}</div>
+            <button type="button" class="btn-close fs-3" v-on:click="close()"></button>
+        </div>
+
+        <div class="optionParam mb-3">
+            <div class="row">
+                <label class="col-sm-3 col-form-label">{{ $t("createContainer.name") }}</label>
+                <div class="col-sm-9"><span>{{name}}</span></div>
+            </div>
+            <div class="row">
+                <label class="col-sm-3 col-form-label">{{ $t("createContainer.imageTag") }}</label>
+                <div class="col-sm-9"><span>{{repo + ':' + tag}}</span></div>
+            </div>
+            <div class="row">
+                <label class="col-sm-3 col-form-label">{{ $t("fileWin.user") }}</label>
+                <div class="col-sm-9"><span>{{user}}</span></div>
+            </div>
+
+            <div class="row mb-2">
+                <label class="col-sm-3 col-form-label">{{ $t("fileWin.dir") }}</label>
+                <div class="col-sm-9 d-flex flex-row flex-nowrap">
+                    <input class="form-control-input me-2" style="width:25em" v-model="dir" @keydown.enter="getFileInfo()"></input>
+                    <button type="button" class="btn btn-success" v-on:click="getFileInfo()">
+                        <span class="bi-arrow-repeat"></span>
+                        <span class="spinner-border spinner-border-sm text-light d-none" id="getFileInfo_spinner"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Container File List -->
+        <h4>{{ $t("fileWin.remoteDir") + " : " + lastDir}}</h4>
+        <div class="scrollTbl mb-3">
+            <table class="table table-sm table-hover text-nowrap">
+                <tr class="table-success">
+                    <th>No.</th>
+                    <th>{{ $t("fileWin.permission") }}</th>
+                    <th>{{ $t("fileWin.owner") }}</th>
+                    <th>{{ $t("fileWin.group") }}</th>
+                    <th>{{ $t("fileWin.size") }}</th>
+                    <th>{{ $t("fileWin.date") }}</th>
+                    <th>{{ $t("fileWin.name") }}</th>
+                    <th>{{ $t("fileWin.operation") }}</th>
+                </tr>
+                <tr v-for="(file, index) of files">
+                    <td>{{ index+1 }}</td>
+                    <td>{{ file.permission }}</td>
+                    <td>{{ file.owner }}</td>
+                    <td>{{ file.group }}</td>
+                    <td>{{ file.size }}</td>
+                    <td>{{ file.date }}</td>
+                    <td><span v-if="file.name.endsWith('/') && file.name != './'" v-on:click="moveToDir(file.name)"
+                            class="anchorLink">{{ file.name }}</span>
+                        <span v-if="!file.name.endsWith('/') || file.name == './'">{{ file.name }}</span>
+                    </td>
+                    <td><button v-if="!file.name.endsWith('/') 
+                        && (file.permission.charAt(0) == '-' || file.permission.charAt(0) == 'l')"
+                            class="btn btn-primary"  v-on:click="downloadFile(file.name, index)">
+                            <span class="bi-download" style="font-size:0.75em"></span>
+                            <span class="spinner-border spinner-border-sm text-light d-none" v-bind:id="'download_spinner_'+index"></span>
+                         </button>
+                        </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Separator -->
+        <div class="d-flex flex-row justify-content-center mb-3">
+            <span type="button" class="text-success bi-arrow-down-up" disabled></span>
+        </div>
+
+        <!-- Host File List -->
+        <div class="d-flex flex-row mb-3">
+            <h4 class="me-3">{{$t("fileWin.hostDir")}}</h4>
+            <button type="button" class="btn btn-primary bi-folder me-1" v-on:click="openFile(null)"></button>
+            <button type="button" class="btn btn-success" v-on:click="reloadWorkDir()">
+                <span class="bi-arrow-repeat"></span>
+                <span class="spinner-border spinner-border-sm text-light d-none" id="reloadWorkDir_spinner"></span>
+            </button>
+        </div>
+        <div class="scrollTbl">
+            <table class="table table-sm table-hover text-nowrap">
+                <tr class="table-warning">
+                    <th>No.</th>
+                    <th>{{ $t("fileWin.size") }}</th>
+                    <th>{{ $t("fileWin.date") }}</th>
+                    <th>{{ $t("fileWin.name") }}</th>
+                    <th>{{ $t("fileWin.operation") }}</th>
+                </tr>
+                <tr v-for="(file, index) of hostFiles">
+                    <td>{{ index+1 }}</td>
+                    <td>{{ file.size }}</td>
+                    <td>{{ file.date }}</td>
+                    <td><a v-on:click="openFile(file.name)"
+                           class="anchorLink">{{ file.name }}</a>
+                    </td>
+                    <td><button v-if="dir == lastDir" class="btn btn-success" v-on:click="uploadFile(file.name, index)">
+                            <span class="bi-upload" style="font-size:0.75em"></span>
+                            <span class="spinner-border spinner-border-sm text-light d-none" v-bind:id="'upload_spinner_'+index"></span>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script src="js/vue.global.js"></script>
+    <script src="js/vue-i18n.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/EasyDockerCommon.js"></script>
+    <script src="js/fileApp.js"></script>
+</body>
+
+</html>

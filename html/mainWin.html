@@ -75,14 +75,12 @@
 							</button>
 						</td>
 						<td class="text-nowrap">
-							<button v-if="container.State == 'running'" class="btn text-light bg-dark bi-terminal"
+							<button v-if="container.State == 'running'" class="btn text-light bg-dark bi-terminal me-1"
 								v-on:click="openConsole(container.Id)"></button>
-							<button v-if="container.State != 'running'" class="btn bi-terminal-x text-white"
+							<button v-if="container.State != 'running'" class="btn bi-terminal-x text-white me-1"
 								disabled></button>
-							<!--
-							<button class="btn btn-primary bi-files"></button>
-							-->
-							<button class="btn btn-success bi-save" v-on:click="exportImageWin(container.Id)"></button>
+							<button class="btn btn-primary bi-folder me-1" v-on:click="fileWin(container.Id)"></button>
+							<button class="btn btn-success bi-save me-1" v-on:click="exportImageWin(container.Id)"></button>
 						</td>
 						<td>
 							<div class="text-nowrap" v-html="ports(container)"></div>
@@ -140,7 +138,7 @@
 					<div class="fw-bold" v-html="$t('common.error.connect')"></div>
 					<div class="ms-3">{{tabErr}}</div>
 				</div>
-				<div v-if="!actionErr && images=={}" class="alert alert-info">{{$t("imagetab.noimage")}}</div>
+				<div v-if="!actionErr && images.length==0" class="alert alert-info">{{$t("imagetab.noimage")}}</div>
 				<div v-if="actionErr" class="alert alert-danger">{{actionErr}}</div>
 				<table class="table">
 					<tr class="text-center">
@@ -264,6 +262,22 @@
 						<div class="mx-1">{{ $t("common.height")}}</div>
 						<div>
 							<input type="text" class="form-control" style="width:5em" v-model="config.mainWin.height">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.fileWin")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">{{ $t("common.width")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.fileWin.width">
+						</div>
+						<div class="mx-3">x</div>
+						<div class="mx-1">{{ $t("common.height")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.fileWin.height">
 						</div>
 					</div>
 				</div>

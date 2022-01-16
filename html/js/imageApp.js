@@ -3,7 +3,7 @@ const imageApp = Vue.createApp({
         return {
             tabErr: null,
             actionErr: null,
-            images: null,
+            images: [],
             deleteImageId:""
         }
     },

@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld("MainWinBridge",{
         })
     },
 
+    fileWin:(x_id:string)=>{
+        ipcRenderer.send("fileWin", x_id);
+    },
+
     startContainer:(x_id:string)=>{
         ipcRenderer.send("startContainer", x_id);
     },

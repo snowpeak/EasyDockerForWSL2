@@ -18,6 +18,10 @@ const App = Vue.createApp({
                     width: 1200,
                     height: 800,
                 },
+                fileWin:{
+                    width: 800,
+                    height: 800,
+                },
                 editMemoWin:{
                     width: 600,
                     height: 800,
