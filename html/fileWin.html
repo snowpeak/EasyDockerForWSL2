@@ -94,16 +94,46 @@
                             class="anchorLink">{{ file.name }}</span>
                         <span v-if="!file.name.endsWith('/') || file.name == './'">{{ file.name }}</span>
                     </td>
-                    <td><button v-if="!file.name.endsWith('/') 
-                        && (file.permission.charAt(0) == '-' || file.permission.charAt(0) == 'l')"
-                            class="btn btn-primary"  v-on:click="downloadFile(file.name, index)">
+                    <td>
+                        <button v-if="!file.name.endsWith('/') 
+                            && (file.permission.charAt(0) == '-' || file.permission.charAt(0) == 'l')"
+                            class="btn btn-primary me-1"  v-on:click="downloadFile(file.name, index)">
                             <span class="bi-download" style="font-size:0.75em"></span>
                             <span class="spinner-border spinner-border-sm text-light d-none" v-bind:id="'download_spinner_'+index"></span>
                          </button>
-                        </td>
+                         <button v-if="!file.name.endsWith('/') 
+                            && (file.permission.charAt(0) == '-' || file.permission.charAt(0) == 'l')"
+                            class="btn btn-danger"  v-on:click="prepareDeleteFile(file.name)"
+                            data-bs-toggle="modal" data-bs-target="#deleteFileModal"
+                            v-bind:data-bs-name="file.name">
+                            <span class="bi-trash" style="font-size:0.75em"></span>
+                            <span class="spinner-border spinner-border-sm text-light d-none" v-bind:id="'delete_spinner_'+index"></span>
+                      </button>
+                  </td>
                 </tr>
             </table>
         </div>
+        
+        <!-- delete Modal -->
+        <div class="modal fade" id="deleteFileModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{$t("fileWin.confirmDelete")}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="deleteFileName"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" v-on:click="deleteFile()">
+                            <span class="bi-trash"></span>
+                            <span class="spinner-border spinner-border-sm text-light d-none"
+                                id="deleteSpinner"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+		</div>
 
         <!-- Separator -->
         <div class="d-flex flex-row justify-content-center mb-3">

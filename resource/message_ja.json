@@ -120,6 +120,7 @@
 		"date": "最終更新日",
 		"name": "名称",
 		"operation": "操作",
+		"confirmDelete": "ファイルを削除しますか?",
 		"hostDir": "ホスト側の作業フォルダ"
 	},
 

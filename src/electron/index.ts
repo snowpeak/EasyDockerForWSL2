@@ -588,11 +588,20 @@ ipcMain.on('downloadFile', (x_event, x_id, x_winId, x_path, x_user, x_spinnerid)
 	let p_workDir = (p_win as FileWin).getWorkDir();
 	ContainerAPI.downloadFile(x_id, x_path, x_user, p_workDir, (x_err)=>{
 		x_event.sender.send('resDownloadFile', x_err, x_spinnerid);
-		getHostFileList(p_workDir, (x_err, x_files)=>{
-			console.log(x_files);
-			x_event.sender.send('resReloadWorkDir', x_err, x_files);
-		})
+		if(!x_err){
+			getHostFileList(p_workDir, (x_err, x_files)=>{
+				console.log(x_files);
+				x_event.sender.send('resReloadWorkDir', x_err, x_files);
+			})
+		}
 	})
+})
+
+ipcMain.on('deleteFile', (x_event, x_containerId, x_deletePath, x_user)=>{
+	ContainerAPI.deleteFile(x_containerId, x_deletePath, x_user, (x_err)=>{
+		x_event.sender.send('resDeleteFile', x_err);
+	})
+
 })
 ipcMain.on('uploadFile', (x_event, x_containerId, x_winId, x_file, x_toDir, x_user, x_spinnerid)=>{
 	let p_win = AbstractWin.getWinById(x_winId);

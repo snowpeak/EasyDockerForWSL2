@@ -37,6 +37,15 @@ contextBridge.exposeInMainWorld("FileWinBridge",{
         })
     },
 
+    deleteFile:(x_containerId:string, x_path:string, x_user:string)=>{
+        ipcRenderer.send("deleteFile", x_containerId, x_path, x_user);
+    },
+    resDeleteFile:(x_func:(x_err:string)=>void) =>{
+        ipcRenderer.on("resDeleteFile", (x_event, x_err) =>{
+            x_func(x_err);
+        })
+    },
+
     uploadFile:(x_containerId:string, x_winId:number, x_file:string, x_toDir:string, x_user:string, x_spinnerid:number)=>{
         ipcRenderer.send("uploadFile", x_containerId, x_winId, x_file, x_toDir, x_user, x_spinnerid);
     },

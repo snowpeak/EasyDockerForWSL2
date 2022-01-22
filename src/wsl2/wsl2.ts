@@ -104,7 +104,8 @@ export class WSL2 {
     }
 
     public static requestToOS(x_path:string){
-        shell.openExternal(x_path)
+        //shell.openExternal(x_path)
+        shell.openPath(x_path)
         .then(()=>{
             // success
             log.info("request to OS:" + x_path);

@@ -159,22 +159,44 @@ export class ContainerAPI extends APIBase {
     }
 
     public static downloadFile(x_id: string, x_path: string, x_user: string, x_toDir: string, x_func: (x_err: string | null) => void) {
-        let p_options = super.getOptions(`/containers/${x_id}/archive?path=${x_path}`, "GET", "", "");
+        //let p_spaceStr = escapeSpace(x_path);
+        let p_escapeStr = encodeURI(x_path);
+
+        let p_options = super.getOptions(`/containers/${x_id}/archive?path=${p_escapeStr}`, "GET", "", "");
 
         fs.mkdirSync(x_toDir, { recursive: true });
 
         let p_req = http.request(p_options, (p_res) => {
-            p_res.pipe(
-                tar.x({
-                    C: x_toDir
-                }).on('error', (x_err) => {
-                    log.error(String(x_err));
+            let p_errMsg = "";
+            if (p_res.statusCode != 200) {
+                // error
+                p_res.on('data', (chunk) => {
+                    p_errMsg += chunk;
                 })
-            );
+            } else {
+                // receive tar
+                p_res.pipe(
+                    tar.x({
+                        C: x_toDir
+                    }).on('error', (x_err) => {
+                        log.error(String(x_err));
+                    })
+                );
+
+                //let p_out = fs.createWriteStream(path.resolve(x_toDir, "test.tar"));
+                //p_res.pipe(p_out);
+            }
+            // p_res.pipe(
+            //     tar.x({
+            //         C: x_toDir
+            //     }).on('error', (x_err) => {
+            //         log.error(String(x_err));
+            //     })
+            // );
             p_res.on('end', () => {
                 if (p_res.statusCode != 200) {
                     // 失敗
-                    x_func("error: " + p_res.statusCode);
+                    x_func("error: " + p_res.statusCode + ", " + p_errMsg);
                     return;
                 }
                 log.info("file downloaded : " + x_path);
@@ -186,6 +208,16 @@ export class ContainerAPI extends APIBase {
             })
         })
         p_req.end();
+    }
+
+    public static deleteFile(x_id: string, x_path: string, x_user: string, x_func: (x_err: string | null) => void) {
+        this.execCmd(x_id, ["rm", "-rf", x_path], x_user, (x_err, x_str) => {
+            if (x_str) {
+                x_func(deleteControlChar(x_str));
+            } else {
+                x_func(x_err);
+            }
+        })
     }
 
     public static uploadFile(x_id: string, x_srcDir: string, x_filename: string, x_toDir: string, x_user: string, x_func: (x_err: string | null) => void) {
@@ -248,7 +280,7 @@ export class ContainerAPI extends APIBase {
                 let p_cmds = ["touch", `${x_toDir}${x_filename}`];
                 ContainerAPI.execCmd(x_id, p_cmds, x_user, (x_err, x_string) => {
                     // recursive call
-                    this.uploadFile(x_id, x_srcDir, x_filename, x_toDir, x_user, (x_err)=>{
+                    this.uploadFile(x_id, x_srcDir, x_filename, x_toDir, x_user, (x_err) => {
                         x_func(x_err);
                     })
                 })
@@ -301,7 +333,7 @@ export class ContainerAPI extends APIBase {
             if (p_tokens.length < 6) {
                 continue;
             }
-            let p_userid = ContainerAPI.deleteControlChar(p_tokens[0]);
+            let p_userid = deleteControlChar(p_tokens[0]);
             let p_homeDir = p_tokens[5];
             let p_shell = p_tokens[6];
             log.info(p_userid + "," + p_homeDir + "," + p_shell);
@@ -310,16 +342,6 @@ export class ContainerAPI extends APIBase {
                     "userid": p_userid,
                     "homeDir": p_homeDir
                 });
-            }
-        }
-        return p_ret;
-    }
-
-    private static deleteControlChar(x_str: string): string {
-        let p_ret = "";
-        for (let p_char of x_str) {
-            if (p_char >= ' ' && p_char <= '~') {
-                p_ret += p_char;
             }
         }
         return p_ret;
@@ -350,9 +372,8 @@ export class ContainerAPI extends APIBase {
                 name: "",
             };
             for (let p_token of p_tokens) {
-                if (p_foundIdx > 8) {
-                    p_info.name += p_token;
-                    continue;
+                if (p_foundIdx > 7) {
+                    break;
                 }
                 if (p_token == "" || p_token.trim() == "") {
                     continue;
@@ -373,11 +394,10 @@ export class ContainerAPI extends APIBase {
                     p_info.date += " " + p_token;
                 } else if (p_foundIdx == 7) {
                     p_info.date += " " + p_token;
-                } else if (p_foundIdx == 8) {
-                    p_info.name = p_token;
                 }
                 p_foundIdx++;
             }
+            p_info.name += p_line.substring(40).trim();
             p_dirInfo.push(p_info);
         }
         return p_dirInfo;
@@ -413,6 +433,16 @@ export class ContainerAPI extends APIBase {
             [x_filename]
         ).pipe(p_req);
     }
+}
+
+function deleteControlChar(x_str: string): string {
+    let p_ret = "";
+    for (let p_char of x_str) {
+        if (p_char >= ' ' && p_char <= '~') {
+            p_ret += p_char;
+        }
+    }
+    return p_ret;
 }
 
 function getNumOfPermission(x_permission: string): string {

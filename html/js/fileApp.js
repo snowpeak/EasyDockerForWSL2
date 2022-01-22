@@ -9,9 +9,9 @@ const App = Vue.createApp({
             execUserid: "root",
             lastDir: "",
             dir: "/",
-
-            //user: "root",
             usersJson:[],
+
+            deleteTargetFile: "",
 
             files: [],
             hostFiles: [],
@@ -24,6 +24,7 @@ const App = Vue.createApp({
             window.FileWinBridge.resGetUserInfo(this.resGetUserInfo);
             window.FileWinBridge.resGetFileInfo(this.resGetFileInfo);
             window.FileWinBridge.resDownloadFile(this.resDownloadFile);
+            window.FileWinBridge.resDeleteFile(this.resDeleteFile);
             window.FileWinBridge.resUploadFile(this.resUploadFile);
             window.FileWinBridge.resReloadWorkDir(this.resReloadWorkDir);
         }
@@ -139,8 +140,41 @@ const App = Vue.createApp({
             window.FileWinBridge.downloadFile(this.containerId, this.winId, p_target, this.execUserid, x_index);
         },
         resDownloadFile(x_err, x_spinnerid) {
+            this.actionErr = x_err;
             common_stopSpinner("download_spinner_" + x_spinnerid);
         },
+
+        prepareDeleteFile(x_filename){
+            this.deleteTargetFile = x_filename;
+        },
+        deleteFile: function(){
+            let p_deleteFile = this.deleteTargetFile;
+            console.log("doDelete file: " + p_deleteFile);
+            let p_target = this.lastDir;
+            if (!p_target.endsWith("/")) {
+                p_target += "/"
+            }
+
+            let p_idx = p_deleteFile.indexOf("->");
+            if( p_idx > 0 ){
+                p_deleteFile = p_deleteFile.substring(p_idx+2).trim();                
+            }
+            p_target += p_deleteFile;
+
+            common_startSpinner("deleteSpinner");
+            window.FileWinBridge.deleteFile(this.containerId, p_target, this.execUserid);
+        },
+        resDeleteFile(x_err){
+            this.actionErr = x_err;
+            common_stopSpinner("deleteSpinner");
+            let p_modalId = document.getElementById('deleteFileModal');
+            let p_modal = bootstrap.Modal.getInstance(p_modalId);
+            p_modal.hide();
+            if(!x_err){
+                this.getFileInfo();
+            }
+        },
+
         uploadFile(x_file, x_index) {
             this.actionErr = null;
             common_startSpinner("upload_spinner_" + x_index);
@@ -174,6 +208,14 @@ const App = Vue.createApp({
     const i18n = new VueI18n.createI18n(p_i18nJson);
     App.use(i18n);
     App.mount("#App");
+
+    let p_delModal = document.getElementById("deleteFileModal");
+    p_delModal.addEventListener('show.bs.modal', function (event) {
+        console.log('show.bs.modal:' + p_delModal);
+        let p_btn = event.relatedTarget;
+        let p_name = p_btn.getAttribute('data-bs-name');
+        document.querySelector("#deleteFileName").innerHTML = p_name;
+    })
 }
 
 

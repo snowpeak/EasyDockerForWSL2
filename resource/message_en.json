@@ -119,6 +119,7 @@
 		"date": "timestamp",
 		"name": "name",
 		"operation": "operation",
+		"confirmDelete": "Delete file?",
 		"hostDir": "Work Foler in Host"
 	},
 
