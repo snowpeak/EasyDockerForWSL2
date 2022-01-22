@@ -45,9 +45,17 @@
                 <label class="col-sm-3 col-form-label">{{ $t("createContainer.imageTag") }}</label>
                 <div class="col-sm-9"><span>{{repo + ':' + tag}}</span></div>
             </div>
-            <div class="row">
+            <div class="row mb-2">
                 <label class="col-sm-3 col-form-label">{{ $t("fileWin.user") }}</label>
-                <div class="col-sm-9"><span>{{user}}</span></div>
+                <div class="col-sm-9 d-flex flex-row flex-nowrap">
+                    <select class="form-select me-2" style="width:25em" v-model="execUserid" v-on:change="changeUser()">
+                        <option v-for="(json, index) of usersJson" v-bind:value="json.userid">{{json.userid}}</option>
+                    </select>                    
+                    <button type="button" class="btn btn-primary" v-on:click="showHomeDir()">
+                        <span class="bi-house-door"></span>
+                        <span class="spinner-border spinner-border-sm text-light d-none" id="showHomeDir_spinner"></span>
+                    </button>
+                </div>
             </div>
 
             <div class="row mb-2">
@@ -103,6 +111,7 @@
         </div>
 
         <!-- Host File List -->
+        <div v-if="actionErr" class="alert alert-danger" role="alert">{{actionErr}}</div>
         <div class="d-flex flex-row mb-3">
             <h4 class="me-3">{{$t("fileWin.hostDir")}}</h4>
             <button type="button" class="btn btn-primary bi-folder me-1" v-on:click="openFile(null)"></button>

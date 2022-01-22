@@ -6,9 +6,12 @@ const App = Vue.createApp({
             name: null,
             repo: null,
             tag: null,
-            user: "root",
+            execUserid: "root",
             lastDir: "",
             dir: "/",
+
+            //user: "root",
+            usersJson:[],
 
             files: [],
             hostFiles: [],
@@ -28,6 +31,15 @@ const App = Vue.createApp({
         this.winId = p_params.get('winId');
         this.containerId = p_params.get('containerId');
         window.FileWinBridge.getContainerDB(this.containerId);
+
+        let p_usersJsonStr = p_params.get('usersJsonStr');
+        let p_usersJson = JSON.parse(p_usersJsonStr); // [{userid:〇〇, homeDir:××}]
+        this.usersJson = p_usersJson;
+
+        if(this.usersJson && this.usersJson.length > 0){
+            this.execUserid = this.usersJson[0].userid;
+            this.dir = this.usersJson[0].homeDir;
+        }
     },
     methods: {
         resGetContainerDB: function (x_err, x_res) {
@@ -38,6 +50,28 @@ const App = Vue.createApp({
                 this.memo = x_res.memo;
             }
         },
+        changeUser(){
+            for(let p_json of this.usersJson){
+                if(p_json.userid == this.execUserid){
+                    if(this.files.length == 0){
+                        this.lastDir = "";
+                        this.dir = p_json.homeDir;
+                    }
+                    return;
+                }
+            }
+        },
+        showHomeDir(){
+            for(let p_json of this.usersJson){
+                if(p_json.userid == this.execUserid){
+                    this.dir = p_json.homeDir;
+                    this.lastDir = p_json.homeDir;
+                    common_startSpinner("showHomeDir_spinner");
+                    window.FileWinBridge.getFileInfo(this.containerId, this.dir, this.execUserid);
+                    return;
+                }
+            }
+        },
         enterAtDir: function(x_event){
             if(x_event.key == 'Enter'){
                 this.getFileInfo();
@@ -46,11 +80,12 @@ const App = Vue.createApp({
         getFileInfo: function () {
             this.lastDir = this.dir;
             common_startSpinner("getFileInfo_spinner");
-            window.FileWinBridge.getFileInfo(this.containerId, this.dir, this.user);
+            window.FileWinBridge.getFileInfo(this.containerId, this.dir, this.execUserid);
         },
         resGetFileInfo: function (x_err, x_files) {
             this.files = x_files;
             this.actionErr = x_err;
+            common_stopSpinner("showHomeDir_spinner");
             common_stopSpinner("getFileInfo_spinner");
             console.log("resGetFileInfo:" + x_files.length);
         },
@@ -85,7 +120,7 @@ const App = Vue.createApp({
             this.lastDir = p_nextDir;
             this.dir = p_nextDir;
             common_startSpinner("getFileInfo_spinner");
-            window.FileWinBridge.getFileInfo(this.containerId, this.dir, this.user);
+            window.FileWinBridge.getFileInfo(this.containerId, this.dir, this.execUserid);
         },
         downloadFile(x_fileName, x_index) {
             console.log("download file: " + x_fileName);
@@ -101,16 +136,18 @@ const App = Vue.createApp({
             p_target += x_fileName;
 
             common_startSpinner("download_spinner_" + x_index);
-            window.FileWinBridge.downloadFile(this.containerId, this.winId, p_target, this.user, x_index);
+            window.FileWinBridge.downloadFile(this.containerId, this.winId, p_target, this.execUserid, x_index);
         },
         resDownloadFile(x_err, x_spinnerid) {
             common_stopSpinner("download_spinner_" + x_spinnerid);
         },
         uploadFile(x_file, x_index) {
+            this.actionErr = null;
             common_startSpinner("upload_spinner_" + x_index);
-            window.FileWinBridge.uploadFile(this.containerId, this.winId, x_file, this.lastDir, this.user, x_index);
+            window.FileWinBridge.uploadFile(this.containerId, this.winId, x_file, this.lastDir, this.execUserid, x_index);
         },
         resUploadFile(x_err, x_spinnerid) {
+            this.actionErr = x_err;
             common_stopSpinner("upload_spinner_" + x_spinnerid);
         },
         reloadWorkDir() {

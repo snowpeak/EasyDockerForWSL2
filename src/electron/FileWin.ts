@@ -12,6 +12,7 @@ export class FileWin extends AbstractWin{
         if(this.m_win){
             let p_config = Config.getInstance();
             this.m_dir = path.resolve(Config.getDataDir(), "download", String(this.m_win.id));
+            fs.mkdirSync(this.m_dir, { recursive: true });
         }
     }
 

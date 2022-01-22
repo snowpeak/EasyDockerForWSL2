@@ -567,11 +567,16 @@ ipcMain.on('saveConfig', (x_event, x_config)=>{
 // ファイルリストウィンドウ
 import {FileWin} from './FileWin';
 import { AbstractWin } from "./AbstractWin";
-ipcMain.on('fileWin', (x_event, x_id:string)=>{
+ipcMain.on('fileWin', (x_event, x_containerId:string)=>{
 	let p_width = s_config.getNum("fileWin/width", 600);
 	let p_height = s_config.getNum("fileWin/height", 800);
 	let p_dbg = s_config.getBool("dbg", false);
-	let p_win = new FileWin(p_width, p_height, p_dbg, "containerId=" + x_id);
+
+	// 対象コンテナの有効 shellユーザーを取得する
+	ContainerAPI.getShellUsers(x_containerId, (x_users)=>{
+		let p_win = new FileWin(p_width, p_height, p_dbg, 
+			"containerId=" + x_containerId + "&usersJsonStr=" + JSON.stringify(x_users));
+	})
 })
 ipcMain.on('getFileInfo', (x_event, x_id, x_path, x_user)=>{
 	ContainerAPI.getFileInfo(x_id, x_path, x_user, (x_err, x_json)=>{
@@ -594,9 +599,11 @@ ipcMain.on('uploadFile', (x_event, x_containerId, x_winId, x_file, x_toDir, x_us
 	let p_workDir = (p_win as FileWin).getWorkDir();
 	ContainerAPI.uploadFile(x_containerId, p_workDir, x_file, x_toDir, x_user, (x_err)=>{
 		x_event.sender.send('resUploadFile', x_err, x_spinnerid);
-		ContainerAPI.getFileInfo(x_containerId, x_toDir, x_user, (x_err, x_json)=>{
-			x_event.sender.send('resGetFileInfo', x_err, x_json, x_toDir);
-		})
+		if(!x_err){
+			ContainerAPI.getFileInfo(x_containerId, x_toDir, x_user, (x_err, x_json)=>{
+				x_event.sender.send('resGetFileInfo', x_err, x_json, x_toDir);
+			})
+		}
 	})
 })
 
