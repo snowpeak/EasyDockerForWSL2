@@ -97,6 +97,7 @@
 	"setting.user.exportImageWin":"Export Container Window",
 	"setting.user.createContainerWin":"Create Container Window",
 	"setting.user.loadImageWin":"Load Image Window",
+	"setting.user.pullImageWin":"Pull Image Window",
 
 	"setting.title.config":"System Setting",
 	"setting.config.dbg":"Debug Mode",
@@ -122,6 +123,18 @@
 		"confirmDelete": "Delete file?",
 		"hostDir": "Work Foler in Host"
 	},
+
+	"pullImageWin" : {
+		"title": "Get images from internet.",
+		"src" : "Source",
+		"dockerhub" : "DockerHub",
+		"aws" : "Amazon Web Services",
+		"command" : "pull command",
+		"pull" : "docker pull",
+		"running" : "Donwloading image.",
+		"end" : "Download was finished. See the image list whether success or not."
+	},
+
 
 	"end": "end"
 

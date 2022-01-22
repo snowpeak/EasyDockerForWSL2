@@ -98,6 +98,7 @@
 	"setting.user.exportImageWin":"コンテナ保存画面",
 	"setting.user.createContainerWin":"コンテナ作成画面",
 	"setting.user.loadImageWin":"イメージ登録画面",
+	"setting.user.pullImageWin":"イメージプル画面",
 
 	"setting.title.config":"システム設定",
 	"setting.config.dbg":"デバッグ表示",
@@ -122,6 +123,17 @@
 		"operation": "操作",
 		"confirmDelete": "ファイルを削除しますか?",
 		"hostDir": "ホスト側の作業フォルダ"
+	},
+
+	"pullImageWin" : {
+		"title": "インターネットからイメージを取得します",
+		"src" : "取得元",
+		"dockerhub" : "DockerHub",
+		"aws" : "Amazon Web Services",
+		"command" : "取得コマンド",
+		"pull" : "docker pull",
+		"running" : "イメージを取得中です。",
+		"end" : "終了しました。成否はイメージ一覧を確認してください。"
 	},
 
 	"end": "end"

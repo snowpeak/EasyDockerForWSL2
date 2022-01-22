@@ -39,6 +39,18 @@ var DEFAULT_CONFIG : {[key:string]:any}= {
         width: 700,
         height: 800,
     },
+    pullImageWin:{
+        width: 800,
+        height: 400,
+    },
+    hub:{
+        dockerhub:{
+            url: "https://hub.docker.com/search?type=image"
+        },
+        aws:{
+            url: "https://gallery.ecr.aws/"
+        }
+    }
 };
 
 export class Config {

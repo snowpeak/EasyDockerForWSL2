@@ -159,12 +159,8 @@ export class ContainerAPI extends APIBase {
     }
 
     public static downloadFile(x_id: string, x_path: string, x_user: string, x_toDir: string, x_func: (x_err: string | null) => void) {
-        //let p_spaceStr = escapeSpace(x_path);
         let p_escapeStr = encodeURI(x_path);
-
         let p_options = super.getOptions(`/containers/${x_id}/archive?path=${p_escapeStr}`, "GET", "", "");
-
-        fs.mkdirSync(x_toDir, { recursive: true });
 
         let p_req = http.request(p_options, (p_res) => {
             let p_errMsg = "";
@@ -186,13 +182,6 @@ export class ContainerAPI extends APIBase {
                 //let p_out = fs.createWriteStream(path.resolve(x_toDir, "test.tar"));
                 //p_res.pipe(p_out);
             }
-            // p_res.pipe(
-            //     tar.x({
-            //         C: x_toDir
-            //     }).on('error', (x_err) => {
-            //         log.error(String(x_err));
-            //     })
-            // );
             p_res.on('end', () => {
                 if (p_res.statusCode != 200) {
                     // 失敗
@@ -357,12 +346,11 @@ export class ContainerAPI extends APIBase {
             if (p_lineNo == 1) {
                 continue;
             }
-            let p_tokens = p_line.split(/\s/);
-            if (p_tokens.length < 8) {
-                continue;
-            }
 
+            let p_inWord = true;
             let p_foundIdx = 0;
+            let p_first6 = true;
+            let p_first7 = true;
             let p_info = {
                 permission: "",
                 owner: "",
@@ -371,34 +359,47 @@ export class ContainerAPI extends APIBase {
                 date: "",
                 name: "",
             };
-            for (let p_token of p_tokens) {
-                if (p_foundIdx > 7) {
-                    break;
-                }
-                if (p_token == "" || p_token.trim() == "") {
+
+            for(let p_idx=0; p_idx < p_line.length; p_idx++){
+                let p_char = p_line.charAt(p_idx);
+                if(p_char <= " "){
+                    if(p_inWord){
+                        p_inWord = false;
+                        p_foundIdx++;
+                    }
                     continue;
                 }
+                p_inWord = true;
                 if (p_foundIdx == 0) {
-                    p_info.permission = p_token;
+                    p_info.permission += p_char;
                 } else if (p_foundIdx == 1) {
                     //
                 } else if (p_foundIdx == 2) {
-                    p_info.owner = p_token;
+                    p_info.owner += p_char;
                 } else if (p_foundIdx == 3) {
-                    p_info.group = p_token;
+                    p_info.group += p_char;
                 } else if (p_foundIdx == 4) {
-                    p_info.size = p_token;
+                    p_info.size += p_char;
                 } else if (p_foundIdx == 5) {
-                    p_info.date = p_token;
+                    p_info.date += p_char;
                 } else if (p_foundIdx == 6) {
-                    p_info.date += " " + p_token;
+                    if(p_first6){
+                        p_info.date += " ";
+                        p_first6 = false;
+                    }
+                    p_info.date += p_char;
                 } else if (p_foundIdx == 7) {
-                    p_info.date += " " + p_token;
+                    if(p_first7){
+                        p_info.date += " ";
+                        p_first7 = false;
+                    }
+                    p_info.date += p_char;
+                } else if (p_foundIdx == 8) {
+                    p_info.name = p_line.substring(p_idx);
+                    p_dirInfo.push(p_info);
+                    break;
                 }
-                p_foundIdx++;
             }
-            p_info.name += p_line.substring(40).trim();
-            p_dirInfo.push(p_info);
         }
         return p_dirInfo;
     }

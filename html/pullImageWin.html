@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <title>EasyDocker For WSL2</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-icons.css">
+    <style>
+        .optionParam {
+            border: 1px solid silver;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="App" class="mx-4">
+        <div class="alert alert-primary" role="alert">{{ $t("pullImageWin.title")}}</div>
+    
+        <div class="row mb-3">
+            <label class="col-sm-3 form-label">{{ $t("pullImageWin.src")}}</label>
+            <div class="d-flex flex-row align-items-center col-sm-9">
+                <label class="me-3"><input type="radio" class="form-check-input" name="type" value="dockerhub"
+                    v-model="type" checked>{{ $t("pullImageWin.dockerhub") }}</label>
+                <label class="me-3"><input type="radio" class="form-check-input" name="type" value="aws"
+                    v-model="type">{{ $t("pullImageWin.aws") }}</label>
+                <button type="button" class="btn btn-primary bi-globe" v-on:click="openHub(type)"></button>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label class="col-sm-3 form-label">{{ $t("pullImageWin.command")}}</label>
+            <div class="d-flex flex-row align-items-center col-sm-9 text-nowrap">
+                <label class="me-3">docker pull </label>
+                <input class="form-input" style="width:25em" v-model="tag"></input>
+            </div>
+        </div>
+
+        <div v-if="status == 'running'" class="alert alert-warning" role="alert">{{ $t("pullImageWin.running")}}</div>
+        <div v-if="status == 'end'" class="alert alert-success" role="alert">{{ $t("pullImageWin.end")}}</div>
+
+        <div class="mb-3">
+            <div class="d-flex flex-row justify-content-center">
+                <div>
+                    <button type="button" class="btn btn-secondary me-3" v-on:click="close()">{{
+                        $t("common.cancel") }}</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary" v-on:click="pullImage(tag)">
+                        <span class="bi-globe"></span>
+                        <span class="spinner-border spinner-border-sm text-light d-none" id="spinner"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+</div>
+    <script src="js/vue.global.js"></script>
+    <script src="js/vue-i18n.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/EasyDockerCommon.js"></script>
+    <script src="js/pullImageApp.js"></script>
+</body>
+
+</html>

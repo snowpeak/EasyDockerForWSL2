@@ -92,6 +92,9 @@ contextBridge.exposeInMainWorld("MainWinBridge",{
     loadImageWin:()=>{
         ipcRenderer.send("loadImageWin");
     },
+    pullImageWin:()=>{
+        ipcRenderer.send("pullImageWin");
+    },
     //-------------------------
     // 設定
     //-------------------------

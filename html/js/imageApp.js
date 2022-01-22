@@ -54,6 +54,9 @@ const imageApp = Vue.createApp({
         },
         loadImageWin: function(){
             window.MainWinBridge.loadImageWin();
+        },
+        pullImageWin: function(){
+            window.MainWinBridge.pullImageWin();
         }
     }
 })

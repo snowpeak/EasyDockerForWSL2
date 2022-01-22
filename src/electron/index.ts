@@ -272,7 +272,7 @@ ipcMain.on('openConsole', (x_event, x_id)=>{
 	WSL2.openConsole(x_id);
 })
 ipcMain.on('openHostConsole', (x_event)=>{
-	WSL2.openHostConsole();
+	WSL2.openHostConsole(null);
 })
 ipcMain.on('requestToOS', (x_event, x_path)=>{
 	WSL2.requestToOS(x_path);
@@ -469,6 +469,33 @@ function getImageByRepoTag(x_repo: string, x_tag: string, x_func: (x_img: ImageJ
 		x_func(p_retImage);
 	});
 }
+
+// pull image
+import {PullImageWin} from './PullImageWin';
+ipcMain.on('pullImageWin', (x_event)=>{
+	let p_width = s_config.getNum("pullImageWin/width", 800);
+	let p_height = s_config.getNum("pullImageWin/height", 400);
+	let p_dbg = s_config.getBool("dbg", false);
+	let p_win = new PullImageWin(p_width, p_height, p_dbg);
+})
+ipcMain.on('openHub', (x_event, x_type)=>{
+	let p_config = Config.getInstance();
+	let p_url = p_config.getString("hub/" + x_type + "/url", "");
+	if( p_url ){
+		WSL2.openBrowser(p_url);
+	}
+})
+ipcMain.on('pullImage', (x_event, x_tag) => {
+	WSL2.openHostConsole(["docker", "pull", x_tag])
+	.then(x_process => {
+		x_process.on('exit', (x_code, x_signal) => {
+			x_event.sender.send('resPullImage', x_code);
+			ImageAPI.getAll((x_err, x_ret) => {
+				s_mainWin?.getWin().webContents.send('resGetImages', x_err, x_ret);
+			});
+		})
+	})
+})
 
 //--------------------
 // 設定関連

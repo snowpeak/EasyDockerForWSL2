@@ -169,8 +169,10 @@
 					</tr>
 				</table>
 				<!-- add -->
-				<button v-if="!tabErr && images!=null" type="button" class="btn btn-success bi-plus-circle"
-					v-on:click="loadImageWin"></button>
+				<div v-if="!tabErr && images!=null" >
+					<button type="button" class="btn btn-success bi-plus-circle me-1" v-on:click="loadImageWin"></button>
+					<button type="button" class="btn btn-primary bi-globe" v-on:click="pullImageWin"></button>
+				</div>
 
 				<!-- Modal -->
 				<div class="modal fade" id="delImageModal" tabindex="-1">
@@ -353,7 +355,22 @@
 						</div>
 					</div>
 				</div>
-
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("setting.user.pullImageWin")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="mx-1">{{ $t("common.width")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.pullImageWin.width">
+						</div>
+						<div class="mx-3">x</div>
+						<div class="mx-1">{{ $t("common.height")}}</div>
+						<div>
+							<input type="text" class="form-control" style="width:5em"
+								v-model="config.pullImageWin.height">
+						</div>
+					</div>
+				</div>
 				<!-- System Setting -->
 				<div class="alert alert-info text-dark">{{ $t("setting.title.config")}}</div>
 				<div class="row mb-3">
@@ -414,6 +431,23 @@
 						</div>
 					</div>
 				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("pullImageWin.dockerhub")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="col-sm-11">
+							<input type="text" class="form-control" v-model="config.hub.dockerhub.url">
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<label class="col-sm-4 form-label">{{ $t("pullImageWin.aws")}}</label>
+					<div class="d-flex flex-row align-items-center col-sm-8">
+						<div class="col-sm-11">
+							<input type="text" class="form-control" v-model="config.hub.aws.url">
+						</div>
+					</div>
+				</div>
+
 				<div class="mb-4"></div>
 				<div class="d-flex flex-row justify-content-right">
 					<div class="me-3">

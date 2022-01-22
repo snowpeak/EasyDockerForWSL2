@@ -97,10 +97,15 @@ export class WSL2 {
         let p_child = this.forkCommand("start", p_args );
         return p_child;
     }
-    public static async openHostConsole():Promise<ChildProcess>{
-        let p_args = ["wsl", "-d", WSL2.DISTRIBUTION, "--cd", "~"];
-        let p_child = this.forkCommand("start", p_args );
-        return p_child;
+    public static async openHostConsole(x_args:string[]|null):Promise<ChildProcess>{
+        if(x_args && x_args.length > 0){
+            let p_args = ["/WAIT", "wsl", "-d", WSL2.DISTRIBUTION, "--cd", "~"];
+            p_args = p_args.concat(x_args)
+            return this.forkCommand("start", p_args );
+        }else {
+            let p_args = ["wsl", "-d", WSL2.DISTRIBUTION, "--cd", "~"];
+            return this.forkCommand("start", p_args );
+        }
     }
 
     public static requestToOS(x_path:string){
@@ -113,6 +118,10 @@ export class WSL2 {
             // err
             log.error("failed to request to OS:" + x_path + ", " + error);
         })
+    }
+
+    public static openBrowser(x_path:string){
+        shell.openExternal(x_path)
     }
 
     static async execCommand(x_cmd: string, x_encoding:string):Promise<string>{

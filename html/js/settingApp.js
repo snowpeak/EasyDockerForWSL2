@@ -37,7 +37,19 @@ const App = Vue.createApp({
                 loadImageWin:{
                     width: 700,
                     height: 800,
-                }
+                },
+                pullImageWin:{
+                    width: 600,
+                    height: 400,
+                },
+                hub:{
+                    dockerhub:{
+                        url: "https://hub.docker.com/search?type=image"
+                    },
+                    aws:{
+                        url: "https://gallery.ecr.aws/"
+                    }
+                }                
             },
             init: false,
             updated:false,
