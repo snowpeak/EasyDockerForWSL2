@@ -1,6 +1,6 @@
 {
   "name": "easydockerforwsl2",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "EasyDocker for WSL2",
   "main": "tsc/electron/index.js",
   "scripts": {

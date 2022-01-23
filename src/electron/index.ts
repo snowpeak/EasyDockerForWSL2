@@ -13,7 +13,7 @@ import {MainWin} from './MainWin';
 //------------------------
 // 定数定義
 //------------------------
-const VER_NO = "1.1.0";
+const VER_NO = "1.2.0";
 
 //------------------------
 // スタティック変数
@@ -62,9 +62,9 @@ function createTray(){
 			icon: nativeImage.createFromPath(`${__dirname}/../../resource/image/icon-32.png`),
 			click: () => {
 				electron.dialog.showMessageBoxSync({
-					title: 'EasyDocker for WSL2 ${VERNO}',
-					message: "メッセージ",
-					detail:  "詳細"
+					title: 'EasyDocker for WSL2 Ver.${VER_NO}',
+					message: "Windows上でDockerイメージ、コンテナ操作をGUIで管理します。",
+					detail:  "Docker社のDocker Desktop For Windows は必要ありません。"
 				});
 			}
 		},
